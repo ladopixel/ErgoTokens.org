@@ -1,4 +1,5 @@
 <script>
+
 	let value = ''
 	let response = []
 	let informacionCompletaTokens = []
@@ -11,7 +12,7 @@
 	let claseSelect = 'mb-2 mt-2 form-select form-select-sm '
 
 	function cambiarDeColorSelect(){
-		claseSelect = claseSelect + 'bg-success text-light'
+		claseSelect = claseSelect + 'bg-info text-light'
 	}
 
 	function handleInput(){
@@ -40,12 +41,12 @@
 	}
 
 	function toUtf8String(hex) {
-    var str = '';
-    for (var i = 0; i < hex.length; i += 2) {
-        str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-    }
-    return str;
-}
+	    var str = '';
+	    for (var i = 0; i < hex.length; i += 2) {
+	        str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+	    }
+	    return str;
+	}
 </script>
 
 <svelte:head>
