@@ -1,12 +1,13 @@
-ergotokens.org website project Σ
+# ergotokens.org 
+(website project)
 
 Website to view information on tokens created on the Ergo blockchain.
 Ergotokens.org is a search engine for tokens on the Ergo blockchain, this search engine provides information about each of the tokens.
 
 The results shown are being rescued from the ergo APIs:
 
-v0 > https://explorer.ergoplatform.com/en/api
-v1 > https://api.ergoplatform.com/api/v1/docs/
+- v0 > https://explorer.ergoplatform.com/en/api
+- v1 > https://api.ergoplatform.com/api/v1/docs/
 
 I am currently working on the web, for this reason you may experience some errors. Do not hesitate to write me a comment indicating the error or with any improvement you would like me to make.
 
