@@ -61,7 +61,7 @@
 			<input class="form-control mx-2" on:input={handleInput} placeholder="Your token name (5 letters min)" value={value}>
 		</div>
 		<div class="col-3 col-md-2">
-			<!--<a class="btn bg-dark text-secondary border border-secondary ml-2">NFTs</a>-->
+			<a class="btn bg-dark text-secondary border border-secondary ml-2">NFTs</a>
 		</div>
 	</div>
 
