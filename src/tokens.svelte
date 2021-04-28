@@ -3,11 +3,16 @@
 	let response = []
 	let informacionCompletaTokens = []
 	let selected = ''
+	let rutaImage = ''
 
 	let claseLista = 'list-group-item'
 	let claseListaGrupo = 'list-group'
 
-	let claseSelect = 'mb-2 mt-2 form-select form-select-sm'
+	let claseSelect = 'mb-2 mt-2 form-select form-select-sm '
+
+	function cambiarDeColorSelect(){
+		claseSelect = claseSelect + 'bg-success text-light'
+	}
 
 	function handleInput(){
 		value = event.target.value
@@ -15,12 +20,12 @@
 
 	// Cada vez que se modifique el valor de value
 	$: if (value.length > 4){
+		claseSelect = 'mb-2 mt-2 form-select form-select-sm '
 		response = fetch(`https://api.ergoplatform.com/api/v1/tokens/search?query=${value}`)
 			.then (res => res.json())
 			.then (apiResponse => {
 				return response = apiResponse.items
 		})
-		//claseSelect = claseSelect + ' bg-success text-light'
 	}
 
 	// Cada vez que se modifique el valor selected
@@ -48,24 +53,28 @@
 </svelte:head>
 
 <main>
-	<nav class="navbar navbar-light bg-dark rounded">
-	  <div class="container-fluid">
-	    <a class="mb-1"><img src="ergo.png" width="100"></a>
-	    <button class="btn-sm btn bg-dark text-secondary border border-secondary mb-1">NFTs</button>
-		<input class="form-control mt-1" on:input={handleInput} placeholder="Your token name (5 letters min)" value={value}>
-	  </div>
-	</nav>
+	<div class="row g-3 bg-dark px-3 py-3">
+		<div class="col-sm-3 col-md-2">
+			<a href="https://ergotokens.org" class="mb-1"><img src="ergo.png" width="100"></a>
+		</div>
+		<div class="col-6 col-md-8">
+			<input class="form-control mx-2" on:input={handleInput} placeholder="Your token name (5 letters min)" value={value}>
+		</div>
+		<div class="col-3 col-md-2">
+			<!--<a class="btn bg-dark text-secondary border border-secondary ml-2">NFTs</a>-->
+		</div>
+	</div>
 
 	<select bind:value={selected} class={claseSelect}>
 	{#await response}
 		<p>searching...</p>
 	{:then response}
 		{#if response.length > 0}
-
+			{cambiarDeColorSelect()}
 			{#each response as token}
 				<option value={token.id}>{token.name}</option>
 			{/each}
-		{:else if response.length > 2}
+		{:else}
 			<span>No tokens</span>
 		{/if}
 	{:catch error}
@@ -82,7 +91,19 @@
 			{#each informacionCompletaTokens as ImagenToken}
 				{#if ImagenToken.additionalRegisters.R9}
 					<li class={claseLista}>
-						<span><a href={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)} target="_blank"><img src={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)} class="img-thumbnail" width="200" /></a></span>
+						{#if (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.gif') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.png') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.jpg') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.bmp') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == 'jpeg') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.svg') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.raw') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.nef')}
+							<span><a href={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)} target="_blank" title={ImagenToken.assets[0].name}><img src={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)} class="img-thumbnail" width="200" alt={ImagenToken.assets[0].name} /></a></span>
+						{:else if (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.mp3') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.ogg') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.wav') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.aac') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.wma') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == 'aiff')}
+							<span>
+								<audio src={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)} title={ImagenToken.assets[0].name} controls></audio>
+							</span>
+						{:else if (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.mp4') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.mov') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.3gp')}
+							<span>
+								<video src={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)} controls></video>
+							</span>
+
+						{/if}
+
 					</li>
 				{:else}
 					<li class={claseLista}>
@@ -91,31 +112,31 @@
 				{/if}
 				
 				<li class={claseLista}>
-					<span><small><strong>Id: </strong>{ImagenToken.id}</span>
+					<span class="text-break"><small><strong>Id: </strong>{ImagenToken.id}</span>
 				</li>
 				<li class={claseLista}>
-					<span><small><strong>Tx id: </strong>{ImagenToken.txId}</span>
+					<span class="text-break"><small><strong>Tx id: </strong>{ImagenToken.txId}</span>
 				</li>
 				<li class={claseLista}>
-					<span><strong>Value: </strong>{ImagenToken.value}</span>
+					<span class="text-break"><strong>Value: </strong>{ImagenToken.value}</span>
 				</li>
 				<li class={claseLista}>
 					<span><small><strong>Creation Height: </strong>{ImagenToken.creationHeight}</span>
 				</li>
 				<li class={claseLista}>
-					<span><small><strong>Ergo Tree: </strong>{ImagenToken.ergoTree}</span>
+					<span class="text-break"><small><strong>Ergo Tree: </strong>{ImagenToken.ergoTree}</span>
 				</li>
 				<li class={claseLista}>
-					<span><small><strong>Address: </strong>{ImagenToken.address}</span>
+					<span class="text-break"><small><strong>Address: </strong>{ImagenToken.address}</span>
 				</li>
 				<li class={claseLista}>
-					<span><small><strong>Token Id: </strong>{ImagenToken.assets[0].tokenId}</span>
+					<span class="text-break"><small><strong>Token Id: </strong>{ImagenToken.assets[0].tokenId}</span>
 				</li>
 				<li class={claseLista}>
 					<span><small><strong>Amount: </strong>{ImagenToken.assets[0].amount}</span>
 				</li>
 				<li class={claseLista}>
-					<span><small><strong>Name: </strong>{ImagenToken.assets[0].name}</span>
+					<span class="text-break"><small><strong>Name: </strong>{ImagenToken.assets[0].name}</span>
 				</li>
 				<li class={claseLista}>
 					<span><small><strong>Decimals: </strong>{ImagenToken.assets[0].decimals}</span>
@@ -125,25 +146,25 @@
 				</li>
 				<li class="list-group-item bg-dark text-light">Token aditionals registers</li>
 				<li class={claseLista}>
-					<span><small><strong>R4: </strong>{ImagenToken.additionalRegisters.R4}</span>
+					<span class="text-break"><small><strong>R4: </strong>{ImagenToken.additionalRegisters.R4}</span>
 				</li>
 				<li class={claseLista}>
-					<span><small><strong>R5: </strong>{ImagenToken.additionalRegisters.R5}</span>
+					<span class="text-break"><small><strong>R5: </strong>{ImagenToken.additionalRegisters.R5}</span>
 				</li>
 				<li class={claseLista}>	
-					<span><small><strong>R6: </strong>{ImagenToken.additionalRegisters.R6}</span>
+					<span class="text-break"><small><strong>R6: </strong>{ImagenToken.additionalRegisters.R6}</span>
 				</li>
 				<li class={claseLista}>	
-					<span><small><strong>R7: </strong>{ImagenToken.additionalRegisters.R7}</span>
+					<span class="text-break"><small><strong>R7: </strong>{ImagenToken.additionalRegisters.R7}</span>
 				</li>
 				<li class={claseLista}>
-					<span><small><strong>R8: </strong>{ImagenToken.additionalRegisters.R8}</span>
+					<span class="text-break"><small><strong>R8: </strong>{ImagenToken.additionalRegisters.R8}</span>
 				</li>
 				<li class={claseLista}>
-					<span><small><strong>R9Cod: </strong>{ImagenToken.additionalRegisters.R9}</small></span>
+					<span class="text-break"><small><strong>R9Cod: </strong>{ImagenToken.additionalRegisters.R9}</small></span>
 				</li>
 				<li class={claseLista}>
-					<span><small><strong>R9Dec: </strong> <a href={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)}>{toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)}</a></small></span>
+					<span class="text-break"><small><strong>R9Dec: </strong> <a href={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)}>{toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)}</a></small></span>
 				</li>
 			{/each}
 			</ul>
