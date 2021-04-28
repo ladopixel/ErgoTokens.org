@@ -1,0 +1,1 @@
+<center><small><a href="https://ergoplatform.org">ergoplatform.org</a> | <a href="https://ergoauctions.org">ergoauctions.org</a> | <a href="https://ergoutils.org">ergoutils.org</a></small></center>
