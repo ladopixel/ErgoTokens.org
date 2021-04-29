@@ -9,6 +9,8 @@
 </main>
 
 
+<Nfts />
 
-<Search/>
-<Footer/>
+
+<!--<Search/>
+<Footer/>-->
