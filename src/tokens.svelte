@@ -56,7 +56,7 @@
 <main>
 	<div class="row g-3 bg-dark px-3 py-3">
 		<div class="col-sm-3 col-md-2">
-			<a href="https://ergotokens.org" class="mb-1"><img src="ergo.png" width="100"></a>
+			<a href="https://ergotokens.org" class="mb-1"><img src="ergo.png" alt="Logotype Ergo" width="100"></a>
 		</div>
 		<div class="col-6 col-md-8">
 			<input class="form-control mx-2" on:input={handleInput} placeholder="Your token name (5 letters min)" value={value}>
