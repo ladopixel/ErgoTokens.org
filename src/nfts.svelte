@@ -1,10 +1,11 @@
 <script>
 	let valorWallet = '9faPRhy5gSw4zv8bUNh3e6B4S9Y18NpwAqJtJuyu2hopPRPsj12'
 	let arrayIds = []
-	var objeto = {}
-	var arrayDatos = []
+	let objeto = {}
+	let arrayDatos = []
 
-	const obtenerIds = async() => {
+	const listados = async() => {
+		arrayDatos = []
 		try {
 			const res = await fetch(`https://api.ergoplatform.com/api/v0/addresses/${valorWallet}`)
 			const data = await res.json()
@@ -27,7 +28,7 @@
 
 	function toUtf8String(hex) {
 		if(!hex){
-			hex=''
+			hex = ''
 		}
 		var str = '';
 		for (var i = 0; i < hex.length; i += 2) {
@@ -60,7 +61,7 @@
 			<input class="form-control mx-2" placeholder="Your wallet" bind:value={valorWallet}>
 		</div>
 		<div class="col-3 col-md-3">
-			<button on:click={obtenerIds} class="btn bg-dark text-light border border-info ml-2">Accept</button>
+			<button on:click={listados} class="btn bg-dark text-light border border-info ml-2">Accept</button>
             <button class="btn btn-secondary dropdown-toggle mr-2 bg-dark" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Wallets</button>
             <div class="dropdown-menu" aria-labelledby="dropdown01" id="walletsSelect">
               <span class="dropdown-item">No wallets</span>
@@ -69,19 +70,19 @@
 	</div>	
 
 <!-- Audio -->
-<div class="mx-2 my-2 bg-light rounded pb-1">
+<div class="mx-2 my-2 bg-light pb-1">
 	<div class="bg-secondary">
 		<button class="btn "><span id="listadoNFTsFavoritosAudio" class="material-icons mt-2 text-light">favorite</span></button>
-		<span><strong>Your Picture NFTs </strong></span>
+		<span><strong>Your Audio NFTs </strong></span>
 	</div>
   	<div class="row mx-2 my-2">
 		{#each arrayDatos as datos}
-			{#if datos.ext == '.mp3' || datos.ext == '.ogg' || datos.ext == '.wma' || datos.ext == '.aac'}
+			{#if datos.ext == '.mp3' || datos.ext == '.ogg' || datos.ext == '.wma' || datos.ext == '.aac' || datos.ext == 'aiff'}
 				<div class="card mt-2 mx-1 cardColor" style="width: 18rem;">
 					<div>
-						<button class="btn "><span id="listadoNFTsFavoritosPicture" class="material-icons mt-2 text-light">favorite</span></button>
+						<button class="btn"><span id="listadoNFTsFavoritosAudio" class="material-icons mt-2 text-light">favorite</span></button>
 					</div>
-						<audio src={datos.r9} class="card-img-top mb-1 imageBorder" title={datos.name} width="200"></audio>
+						<audio src={datos.r9} class="card-img-top mb-3 " title={datos.name} controls></audio>
 				</div>
 			{/if}
 		{/each}
@@ -89,7 +90,7 @@
 </div>
 
 <!-- Picture -->
-<div class="mx-2 my-2 bg-light rounded pb-1">
+<div class="mx-2 my-2 bg-light pb-1">
 	<div class="bg-secondary ">
 		<button class="btn "><span id="listadoNFTsFavoritosAudio" class="material-icons mt-2 text-light">favorite</span></button>
 		<span><strong>Your Picture NFTs </strong></span>
@@ -110,6 +111,8 @@
 	</div>
 </div>
 </main>
+
+
 
 <style>
 	.cardColor{

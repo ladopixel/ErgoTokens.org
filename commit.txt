@@ -1,0 +1,41 @@
+commit 6e9bdcb87c666dc9822555ff60e2ef915af0f471
+Author: Eneakao <info@untitled.es>
+Date:   Sun May 2 11:38:59 2021 +0200
+
+    consulta optimizada y parte grafica de listado terminada
+
+commit dbf7962197c32714aba9b31e3edb59cea7219885
+Author: Eneakao <info@untitled.es>
+Date:   Fri Apr 30 15:39:29 2021 +0200
+
+    realiza el listado de los nfts que hay en una wallet, muestra la imagen o el reproductor de audio segun el tipo que nft que sea
+
+commit 24fc2435f026f4dd176487fb66b1f869d3d7f843
+Author: Eneakao <info@untitled.es>
+Date:   Thu Apr 29 18:41:02 2021 +0200
+
+    cabecera en Nfts colocada
+
+commit dfdfbd24cb271fd489b4b86757d2445b45430da0
+Author: Eneakao <info@untitled.es>
+Date:   Wed Apr 28 22:11:32 2021 +0200
+
+    ordenadas algunas lineas del codigo
+
+commit cbf2fca058918c00d4c0f82802e7402f4c6ed080
+Author: Eneakao <info@untitled.es>
+Date:   Wed Apr 28 19:20:43 2021 +0200
+
+    comienzo con la seccion nfts
+
+commit 320dae4085313c1e7776739e1f925a61647a5498
+Author: Eneakao <info@untitled.es>
+Date:   Wed Apr 28 17:37:58 2021 +0200
+
+    parte grafica terminada para tokens, detecta tokens de audio, video e imagenes
+
+commit d45678d0ce7709d925a6d8d8dee5651afaf3796c
+Author: Eneakao <info@untitled.es>
+Date:   Wed Apr 28 12:31:54 2021 +0200
+
+    Iniciando algunas mejoras de la parte visual con el buscador ya funcionando

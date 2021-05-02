@@ -62,10 +62,10 @@
 			<input class="form-control mx-2" on:input={handleInput} placeholder="Your token name (5 letters min)" value={value}>
 		</div>
 		<div class="col-3 col-md-2">
-			<a href="https://ab6x.com/nfts" class="btn bg-dark text-secondary border border-secondary ml-2">NFTs</a>
+			<button class="btn bg-dark text-secondary border border-secondary ml-2">NFTs</button>
 		</div>
 	</div>
-
+	
 	<select bind:value={selected} class={claseSelect}>
 	{#await response}
 		<p>searching...</p>
