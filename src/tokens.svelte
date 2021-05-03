@@ -3,7 +3,6 @@
 	let response = []
 	let informacionCompletaTokens = []
 	let selected = ''
-	let rutaImage = ''
 
 	let claseLista = 'list-group-item'
 	let claseListaGrupo = 'list-group'
@@ -11,11 +10,15 @@
 	let claseSelect = 'mb-2 mt-2 form-select form-select-sm '
 
 	function cambiarDeColorSelect(){
-		claseSelect = claseSelect + 'bg-success text-light'
+		claseSelect = claseSelect + 'bg-info text-light'
 	}
 
 	function handleInput(){
 		value = event.target.value
+	}
+
+	function dontWork(){
+		alert('Working in Nfts Explorer, while you can use at https://ab6x.com/nft ')
 	}
 
 	// Cada vez que se modifique el valor de value
@@ -40,12 +43,12 @@
 	}
 
 	function toUtf8String(hex) {
-    var str = '';
-    for (var i = 0; i < hex.length; i += 2) {
-        str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-    }
-    return str;
-}
+	    var str = '';
+	    for (var i = 0; i < hex.length; i += 2) {
+	        str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+	    }
+	    return str;
+	}
 </script>
 
 <svelte:head>
@@ -55,16 +58,16 @@
 <main>
 	<div class="row g-3 bg-dark px-3 py-3">
 		<div class="col-sm-3 col-md-2">
-			<a href="https://ergotokens.org" class="mb-1"><img src="ergo.png" width="100"></a>
+			<a href="https://ergotokens.org" class="mb-1"><img src="ergo.png" alt="Logotype Ergo" width="100"></a>
 		</div>
 		<div class="col-6 col-md-8">
 			<input class="form-control mx-2" on:input={handleInput} placeholder="Your token name (5 letters min)" value={value}>
 		</div>
 		<div class="col-3 col-md-2">
-			<!--<a class="btn bg-dark text-secondary border border-secondary ml-2">NFTs</a>-->
+			<button on:click={dontWork} class="btn bg-dark text-secondary border border-secondary ml-2">NFTs</button>
 		</div>
 	</div>
-
+	
 	<select bind:value={selected} class={claseSelect}>
 	{#await response}
 		<p>searching...</p>

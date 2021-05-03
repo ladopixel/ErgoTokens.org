@@ -1,0 +1,11 @@
+commit 320dae4085313c1e7776739e1f925a61647a5498
+Author: Eneakao <info@untitled.es>
+Date:   Wed Apr 28 17:37:58 2021 +0200
+
+    parte grafica terminada para tokens, detecta tokens de audio, video e imagenes
+
+commit d45678d0ce7709d925a6d8d8dee5651afaf3796c
+Author: Eneakao <info@untitled.es>
+Date:   Wed Apr 28 12:31:54 2021 +0200
+
+    Iniciando algunas mejoras de la parte visual con el buscador ya funcionando

@@ -4,8 +4,6 @@
 </script>
 
 <main>
-	
+	<Search />
+	<Footer />
 </main>
-
-<Search/>
-<Footer/>
