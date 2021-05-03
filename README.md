@@ -1,5 +1,5 @@
 # ergotokens.org 
-(website project)
+(https://ergotokens.org website project)
 
 Website to view information on tokens created on the Ergo blockchain.
 Ergotokens.org is a search engine for tokens on the Ergo blockchain, this search engine provides information about each of the tokens.

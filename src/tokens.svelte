@@ -33,7 +33,7 @@
 
 	// Cada vez que se modifique el valor selected
 	$: {
-		if (selected != '') {
+		if ((selected != '') && (selected !=0)) {
 		informacionCompletaTokens = fetch(`https://api.ergoplatform.com/api/v0/assets/${selected}/issuingBox`)
 			.then (res => res.json())
 			.then (apiResponseToken => {
@@ -73,6 +73,7 @@
 		<p>searching...</p>
 	{:then response}
 		{#if response.length > 0}
+			<option value=0 selected>Select token</option>
 			{cambiarDeColorSelect()}
 			{#each response as token}
 				<option value={token.id}>{token.name}</option>
