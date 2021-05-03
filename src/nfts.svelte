@@ -51,13 +51,13 @@
 <!-- Cabecera -->
 <main class="py-1 bg-dark">
 	<div class="row g-3 bg-dark px-3 py-3">
-		<div class="col-sm-3 col-md-2">
+		<div class="col-sm-3 col-md-3">
 			<a href="https://ergotokens.org" class="mb-1"><img src="ergo.png" alt="Logotype Ergo" width="100"></a>
 			<span class="mx-2"> </span>
-			<button class="btn bg-dark text-secondary border border-secondary">NFTs</button>
+			<button class="btn bg-dark text-secondary border border-secondary">Tokens</button>
 		</div>
 
-		<div class="col-6 col-md-7">
+		<div class="col-6 col-md-6">
 			<input class="form-control mx-2" placeholder="Your wallet" bind:value={valorWallet}>
 		</div>
 		<div class="col-3 col-md-3">
