@@ -1,10 +1,8 @@
 <script>
-
 	let value = ''
 	let response = []
 	let informacionCompletaTokens = []
 	let selected = ''
-	let rutaImage = ''
 
 	let claseLista = 'list-group-item'
 	let claseListaGrupo = 'list-group'
@@ -17,6 +15,10 @@
 
 	function handleInput(){
 		value = event.target.value
+	}
+
+	function dontWork(){
+		alert('Working in Nfts Explorer, while you can use at https://ab6x.com/nft ')
 	}
 
 	// Cada vez que se modifique el valor de value
@@ -62,7 +64,7 @@
 			<input class="form-control mx-2" on:input={handleInput} placeholder="Your token name (5 letters min)" value={value}>
 		</div>
 		<div class="col-3 col-md-2">
-			<button class="btn bg-dark text-secondary border border-secondary ml-2">NFTs</button>
+			<button on:click={dontWork} class="btn bg-dark text-secondary border border-secondary ml-2">NFTs</button>
 		</div>
 	</div>
 	
