@@ -13,7 +13,7 @@
 	let selected = ''
 
 	let arrayFavorites = []
-	let infoFavorite = {id: '', status: false}
+	let infoFavorite = {id: '', status: ''}
 	let claseFavorite = ''
 
 	if (localStorage.getItem("arrayWallets")){
@@ -37,13 +37,19 @@
 	$: localStorage.setItem("arrayFavorites", JSON.stringify(arrayFavorites))
 
 	function addFavorite(idNft){
-		
-		// Verifico que no exista ya como favorito, si existe lo elimino.
-		infoFavorite.id = idNft
-		infoFavorite.status = true
-		arrayFavorites = [...arrayFavorites, infoFavorite]
-		infoFavorite = {id: '', status: ''}
-		alert(idNft)
+		let isFavorite = false
+		for(let i=0; i < arrayFavorites.length; i++){
+			if(idNft[0] == arrayFavorites[i].id){
+				arrayFavorites = arrayFavorites.filter(item => item.id !== idNft[0])
+				isFavorite = true
+			}
+		}
+		if (isFavorite == false){
+			infoFavorite.id = idNft[0]
+			infoFavorite.status = false
+			arrayFavorites = [...arrayFavorites, infoFavorite]
+			infoFavorite = {id: '', status: false}
+		}
 	}
 
 	$: {
@@ -74,6 +80,12 @@
 		} catch (error) {
 			console.log(error)
 		}
+	}
+
+	function listFavoritePicture() {
+			for(let i = 0; i < arrayFavorites.length; i++){
+				
+			}
 	}
 
 	function toUtf8String(hex) {
@@ -128,21 +140,21 @@
 	<!-- Picture -->
 	<div class="mx-2 my-2 bg-light pb-1">
 		<div class="bg-secondary ">
-			<button class="btn "><i class="bi bi-card-image" title="List favorite"></i></button>
+			<button class="btn " on:click={listFavoritePicture}><i class="bi bi-card-image" title="List favorite"></i></button>
 			<span><strong>Your Picture NFTs </strong></span>
 		</div>
 		<div class="row mx-2 my-2">
 			{#each arrayDatos as datos}
-			{#if datos.ext == '.png' || datos.ext == '.gif' || datos.ext == '.jpg'}
-			<div class="card mt-2 mx-1 cardColor" style="width: 18rem;">
-				<div>
-					<button class="btn {claseFavorite}" on:click={addFavorite(datos.id)}><i class="bi bi-heart-fill text-light" title="Add favorite"></i></button>
-				</div>
-				<a href={datos.r9} title={datos.name}>
-					<img src={datos.r9} class="card-img-top mb-3 imageBorder" alt={datos.name} width="200">
-				</a>
-			</div>
-			{/if}
+				{#if datos.ext == '.png' || datos.ext == '.gif' || datos.ext == '.jpg'}
+					<div class="card mt-2 mx-1 cardColor" style="width: 18rem;">
+						<div>
+							<button class="btn {claseFavorite}" on:click={addFavorite(datos.id)}><i class="bi bi-heart-fill text-light" title="Add favorite"></i></button>
+						</div>
+						<a href={datos.r9} title={datos.name}>
+							<img src={datos.r9} class="card-img-top mb-3 imageBorder" alt={datos.name} width="200">
+						</a>
+					</div>
+				{/if}
 			{/each}
 		</div>
 	</div>
