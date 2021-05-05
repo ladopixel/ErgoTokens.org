@@ -1,6 +1,6 @@
 <script>
 
-	let valorWallet = '9faPRhy5gSw4zv8bUNh3e6B4S9Y18NpwAqJtJuyu2hopPRPsj12'
+	let valorWallet = ' '
 	let claseGuardarLocalstorage = ''
 	const onFocus = () => valorWallet = '';
 
@@ -14,7 +14,7 @@
 
 	let arrayFavorites = []
 	let infoFavorite = {id: '', status: ''}
-	let claseFavorite = ''
+	let claseFavorite = ' text-light'
 
 	if (localStorage.getItem("arrayWallets")){
 		arrayWallets = JSON.parse(localStorage.getItem("arrayWallets"))
@@ -38,6 +38,7 @@
 
 	function addFavorite(idNft){
 		let isFavorite = false
+		claseFavorite = ' text-light'
 		for(let i=0; i < arrayFavorites.length; i++){
 			if(idNft[0] == arrayFavorites[i].id){
 				arrayFavorites = arrayFavorites.filter(item => item.id !== idNft[0])
@@ -46,7 +47,7 @@
 		}
 		if (isFavorite == false){
 			infoFavorite.id = idNft[0]
-			infoFavorite.status = false
+			infoFavorite.status = true
 			arrayFavorites = [...arrayFavorites, infoFavorite]
 			infoFavorite = {id: '', status: false}
 		}
@@ -68,7 +69,6 @@
 				for(let i = 0; i < arrayIds.length; i++){
 					const res2 = await fetch(`https://api.ergoplatform.com/api/v0/assets/${arrayIds[i]}/issuingBox`)
 					const data2 = await res2.json()
-					claseGuardarLocalstorage = claseGuardarLocalstorage + ' bg-info'
 					objeto = {
 						id: data2.map(token => token.assets[0].tokenId),
 						name: data2.map(token => token.assets[0].name),
@@ -82,10 +82,28 @@
 		}
 	}
 
-	function listFavoritePicture() {
+ const listFavoritePicture = async() => {
+	arrayDatos = []
+		try {
 			for(let i = 0; i < arrayFavorites.length; i++){
-				
+				const res2 = await fetch(`https://api.ergoplatform.com/api/v0/assets/${arrayFavorites[i].id}/issuingBox`)
+				const data2 = await res2.json()
+				objeto = {
+					id: data2.map(token => token.assets[0].tokenId),
+					name: data2.map(token => token.assets[0].name),
+					r9: data2.map(token => toUtf8String(token.additionalRegisters.R9).substr(2)),
+					ext: data2.map(token => toUtf8String(token.additionalRegisters.R9).substr(2).slice(-4))
+				}
+				arrayDatos[i] = objeto
 			}
+		} catch (error) {
+			console.log(error)
+		}
+	}
+
+	const cleanLocalStorage = () => {
+		localStorage.clear()
+		location.reload()
 	}
 
 	function toUtf8String(hex) {
@@ -120,8 +138,10 @@
 		</div>
 		<div class="col-6 col-md-6">
 			<div class="input-group mb-3 bg-dark">
-				<button on:click={guardarLocalstorage} class="input-group-text dropdown {claseGuardarLocalstorage}" id="basic-addon1"><i class="bi bi-patch-plus"></i></button>
-				<input on:focus={onFocus} bind:value={valorWallet} class="form-control" placeholder="Your wallet"  aria-label="Username" aria-describedby="basic-addon1">
+				<button on:click={listFavoritePicture} title="List of favorites" class="input-group-text dropdown" id="basic-addon1"><i class="bi bi-heart-fill"></i></button>
+				<button on:click={cleanLocalStorage} title="Clean localstorage" class="input-group-text dropdown {claseGuardarLocalstorage}" id="basic-addon1"><i class="bi bi-door-open-fill"></i></button>
+				<input on:focus={onFocus} bind:value={valorWallet} class="form-control " placeholder="Your wallet"  aria-label="Your wallet" aria-describedby="basic-addon1">
+				<button on:click={guardarLocalstorage} title="Add wallet" class="input-group-text dropdown {claseGuardarLocalstorage}" id="basic-addon1"><i class="bi bi-wallet-fill"></i></button>
 			</div>
 		</div>
 		<div class="col-3 col-md-3">
@@ -132,15 +152,59 @@
 					<option value={wallet.address} class="dropdown-item">{wallet.address.substring(0, 7)}...{wallet.address.slice(-7)}</option>
 				{/each}
 			</select>
-
-		</div>
+		</div> 
 	</div>	
+	<!-- Audio 
+	<div class="mx-2 my-2 bg-light pb-1">
+		<div class="bg-secondary py-2 px-5">
+			<span><strong>Your Audio NFTs </strong></span>
+		</div>
+		<div class="row mx-2 my-2">
+			{#each arrayDatos as datos}
+				{#if datos.ext == '.mp3' || datos.ext == '.ogg' || datos.ext == '.wma' || datos.ext == '.aac' || datos.ext == 'aiff'}
+					<div class="card mt-2 mx-1 cardColor" style="width: 18rem;">
+						<div>
+							<button class="btn {claseFavorite}" on:click={addFavorite(datos.id)}><i class="bi bi-heart-fill " title="Add favorite"></i></button>
+						</div>
+							<audio src={datos.r9} class="card-img-top mb-3 " title={datos.name} controls></audio>
+					</div>
+				{/if}
+			{/each}
+		</div>
+	</div> -->
+
+
+	<!-- Audio -->
+	<div class="mx-2 my-2 bg-light pb-1">
+		<div class="bg-secondary py-2 px-5">
+			<span><strong>Your Audio NFTs </strong></span>
+		</div>
+		<div class="row mx-2 my-2">
+			{#each arrayDatos as datos}
+				{#if datos.ext == '.mp3' || datos.ext == '.ogg' || datos.ext == '.wma' || datos.ext == '.aac' || datos.ext == 'aiff'}
+					<div class="card mt-2 mx-1 cardColor" style="width: 18rem;">
+						<div>
+							{#each arrayFavorites as favorite}
+								{#if favorite.id == datos.id}
+									<button class="btn text-danger" on:click={addFavorite(datos.id)}><i class="bi bi-heart-fill " title="Add favorite"></i></button>	
+								{/if}
+							{/each}
+							<button class="btn text-light" on:click={addFavorite(datos.id)}><i class="bi bi-heart-fill " title="Add favorite"></i></button>	
+						</div>
+						<audio src={datos.r9} class="card-img-top mb-3 bg-light {claseFavorite}" title={datos.name} controls></audio>
+						</div>
+					{/if}
+			{/each}
+		</div>
+	</div> 
+
+
+
 
 	
 	<!-- Picture -->
 	<div class="mx-2 my-2 bg-light pb-1">
-		<div class="bg-secondary ">
-			<button class="btn " on:click={listFavoritePicture}><i class="bi bi-card-image" title="List favorite"></i></button>
+		<div class="bg-secondary py-2 px-5">
 			<span><strong>Your Picture NFTs </strong></span>
 		</div>
 		<div class="row mx-2 my-2">
@@ -148,7 +212,7 @@
 				{#if datos.ext == '.png' || datos.ext == '.gif' || datos.ext == '.jpg'}
 					<div class="card mt-2 mx-1 cardColor" style="width: 18rem;">
 						<div>
-							<button class="btn {claseFavorite}" on:click={addFavorite(datos.id)}><i class="bi bi-heart-fill text-light" title="Add favorite"></i></button>
+							<button class="btn {claseFavorite}" on:click={addFavorite(datos.id)}><i class="bi bi-heart-fill" title="Add favorite"></i></button>
 						</div>
 						<a href={datos.r9} title={datos.name}>
 							<img src={datos.r9} class="card-img-top mb-3 imageBorder" alt={datos.name} width="200">
@@ -159,26 +223,7 @@
 		</div>
 	</div>
 
-	<!-- Audio -->
-	<div class="mx-2 my-2 bg-light pb-1">
-		<div class="bg-secondary">
-			<button class="btn"><i class="bi bi-caret-right-square-fill" title="List favorite"></i></button>
-			<span><strong>Your Audio NFTs </strong></span>
-			
-		</div>
-		<div class="row mx-2 my-2">
-			{#each arrayDatos as datos}
-				{#if datos.ext == '.mp3' || datos.ext == '.ogg' || datos.ext == '.wma' || datos.ext == '.aac' || datos.ext == 'aiff'}
-					<div class="card mt-2 mx-1 cardColor" style="width: 18rem;">
-						<div>
-							<button class="btn {claseFavorite}" on:click={addFavorite(datos.id)}><i class="bi bi-heart-fill text-light" title="Add favorite"></i></button>
-						</div>
-							<audio src={datos.r9} class="card-img-top mb-3 " title={datos.name} controls></audio>
-					</div>
-				{/if}
-			{/each}
-		</div>
-	</div>
+	
 </main>
 
 
@@ -190,4 +235,5 @@
 	.imageBorder{
 		border: 5px solid #ffffff;
 	}
+
 </style>
