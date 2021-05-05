@@ -14,7 +14,6 @@
 
 	let arrayFavorites = []
 	let infoFavorite = {id: '', status: ''}
-	let claseFavorite = ' text-light'
 
 	if (localStorage.getItem("arrayWallets")){
 		arrayWallets = JSON.parse(localStorage.getItem("arrayWallets"))
@@ -38,11 +37,15 @@
 
 	function addFavorite(idNft){
 		let isFavorite = false
-		claseFavorite = ' text-light'
 		for(let i=0; i < arrayFavorites.length; i++){
 			if(idNft[0] == arrayFavorites[i].id){
 				arrayFavorites = arrayFavorites.filter(item => item.id !== idNft[0])
 				isFavorite = true
+				for (let i = 0; i < arrayDatos.length; i++){
+					if (idNft[0] == arrayDatos[i].id){
+						arrayDatos[i].class = false
+					}
+				}
 			}
 		}
 		if (isFavorite == false){
@@ -50,7 +53,14 @@
 			infoFavorite.status = true
 			arrayFavorites = [...arrayFavorites, infoFavorite]
 			infoFavorite = {id: '', status: false}
+			for (let i = 0; i < arrayDatos.length; i++){
+				if (idNft[0] == arrayDatos[i].id){
+					arrayDatos[i].class = true
+				}
+			}
 		}
+		
+		console.log(arrayDatos)
 	}
 
 	$: {
@@ -73,9 +83,16 @@
 						id: data2.map(token => token.assets[0].tokenId),
 						name: data2.map(token => token.assets[0].name),
 						r9: data2.map(token => toUtf8String(token.additionalRegisters.R9).substr(2)),
-						ext: data2.map(token => toUtf8String(token.additionalRegisters.R9).substr(2).slice(-4))
+						ext: data2.map(token => toUtf8String(token.additionalRegisters.R9).substr(2).slice(-4)),
 					}
 					arrayDatos[i] = objeto
+				}
+				for(let j = 0; j < arrayDatos.length; j++){
+					for (let k = 0; k < arrayFavorites.length; k++){
+						if (arrayDatos[j].id == arrayFavorites[k].id){
+							arrayDatos[j].class = true
+						}
+					}
 				}
 		} catch (error) {
 			console.log(error)
@@ -92,7 +109,8 @@
 					id: data2.map(token => token.assets[0].tokenId),
 					name: data2.map(token => token.assets[0].name),
 					r9: data2.map(token => toUtf8String(token.additionalRegisters.R9).substr(2)),
-					ext: data2.map(token => toUtf8String(token.additionalRegisters.R9).substr(2).slice(-4))
+					ext: data2.map(token => toUtf8String(token.additionalRegisters.R9).substr(2).slice(-4)),
+					class: true
 				}
 				arrayDatos[i] = objeto
 			}
@@ -154,26 +172,7 @@
 			</select>
 		</div> 
 	</div>	
-	<!-- Audio 
-	<div class="mx-2 my-2 bg-light pb-1">
-		<div class="bg-secondary py-2 px-5">
-			<span><strong>Your Audio NFTs </strong></span>
-		</div>
-		<div class="row mx-2 my-2">
-			{#each arrayDatos as datos}
-				{#if datos.ext == '.mp3' || datos.ext == '.ogg' || datos.ext == '.wma' || datos.ext == '.aac' || datos.ext == 'aiff'}
-					<div class="card mt-2 mx-1 cardColor" style="width: 18rem;">
-						<div>
-							<button class="btn {claseFavorite}" on:click={addFavorite(datos.id)}><i class="bi bi-heart-fill " title="Add favorite"></i></button>
-						</div>
-							<audio src={datos.r9} class="card-img-top mb-3 " title={datos.name} controls></audio>
-					</div>
-				{/if}
-			{/each}
-		</div>
-	</div> -->
-
-
+	
 	<!-- Audio -->
 	<div class="mx-2 my-2 bg-light pb-1">
 		<div class="bg-secondary py-2 px-5">
@@ -184,23 +183,18 @@
 				{#if datos.ext == '.mp3' || datos.ext == '.ogg' || datos.ext == '.wma' || datos.ext == '.aac' || datos.ext == 'aiff'}
 					<div class="card mt-2 mx-1 cardColor" style="width: 18rem;">
 						<div>
-							{#each arrayFavorites as favorite}
-								{#if favorite.id == datos.id}
-									<button class="btn text-danger" on:click={addFavorite(datos.id)}><i class="bi bi-heart-fill " title="Add favorite"></i></button>	
-								{/if}
-							{/each}
-							<button class="btn text-light" on:click={addFavorite(datos.id)}><i class="bi bi-heart-fill " title="Add favorite"></i></button>	
+							{#if datos.class == true}
+								<button class="btn text-danger" on:click={addFavorite(datos.id)}><i class="bi bi-heart-fill " title="Add favorite"></i></button>	
+							{:else}
+								<button class="btn text-light" on:click={addFavorite(datos.id)}><i class="bi bi-heart-fill " title="Add favorite"></i></button>
+							{/if}
 						</div>
-						<audio src={datos.r9} class="card-img-top mb-3 bg-light {claseFavorite}" title={datos.name} controls></audio>
+						<audio src={datos.r9} class="card-img-top mb-3 bg-light" title={datos.name} controls></audio>
 						</div>
 					{/if}
 			{/each}
 		</div>
 	</div> 
-
-
-
-
 	
 	<!-- Picture -->
 	<div class="mx-2 my-2 bg-light pb-1">
@@ -212,7 +206,11 @@
 				{#if datos.ext == '.png' || datos.ext == '.gif' || datos.ext == '.jpg'}
 					<div class="card mt-2 mx-1 cardColor" style="width: 18rem;">
 						<div>
-							<button class="btn {claseFavorite}" on:click={addFavorite(datos.id)}><i class="bi bi-heart-fill" title="Add favorite"></i></button>
+							{#if datos.class == true}
+								<button class="btn text-danger" on:click={addFavorite(datos.id)}><i class="bi bi-heart-fill " title="Add favorite"></i></button>	
+							{:else}
+								<button class="btn text-light" on:click={addFavorite(datos.id)}><i class="bi bi-heart-fill " title="Add favorite"></i></button>
+							{/if}
 						</div>
 						<a href={datos.r9} title={datos.name}>
 							<img src={datos.r9} class="card-img-top mb-3 imageBorder" alt={datos.name} width="200">
@@ -222,10 +220,7 @@
 			{/each}
 		</div>
 	</div>
-
-	
 </main>
-
 
 <style>
 	.cardColor{
@@ -235,5 +230,4 @@
 	.imageBorder{
 		border: 5px solid #ffffff;
 	}
-
 </style>
