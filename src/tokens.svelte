@@ -1,4 +1,6 @@
 <script>
+	//import AudioPlayer, { stopAll } from './AudioPlayer.svelte';
+
 	let value = ''
 	let response = []
 	let informacionCompletaTokens = []
@@ -15,10 +17,6 @@
 
 	function handleInput(){
 		value = event.target.value
-	}
-
-	function dontWork(){
-		alert('Working in Nfts Explorer, while you can use at https://ab6x.com/nft ')
 	}
 
 	// Cada vez que se modifique el valor de value
@@ -43,6 +41,9 @@
 	}
 
 	function toUtf8String(hex) {
+		if(!hex){
+			hex = ''
+		}
 	    var str = '';
 	    for (var i = 0; i < hex.length; i += 2) {
 	        str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
@@ -52,19 +53,24 @@
 </script>
 
 <svelte:head>
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+	<script src="popper.min.js"></script>
+	<script src="bootstrap.js"></script>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
 </svelte:head>
 
-<main>
+<main class=" bg-dark">
 	<div class="row g-3 bg-dark px-3 py-3">
-		<div class="col-sm-3 col-md-2">
+		<div class="col-sm-2 col-md-2">
 			<a href="https://ergotokens.org" class="mb-1"><img src="ergo.png" alt="Logotype Ergo" width="100"></a>
 		</div>
-		<div class="col-6 col-md-8">
+		<div class="col-7 col-md-8">
 			<input class="form-control mx-2" on:input={handleInput} placeholder="Your token name (5 letters min)" value={value}>
 		</div>
 		<div class="col-3 col-md-2">
-			<button on:click={dontWork} class="btn bg-dark text-secondary border border-secondary ml-2">NFTs</button>
+			<a href="https://ergonfts.org" title="Ergo NFTs" class="btn bg-dark text-secondary border border-secondary ml-2">NFTs</a>
 		</div>
 	</div>
 	
@@ -87,7 +93,7 @@
 	</select>
 
 	{#await informacionCompletaTokens}
-		<span>Loading...</span>
+		<span class="text-secondary">Loading...</span>
 	{:then informacionCompletaTokens}
 		{#if informacionCompletaTokens.length > 0}
 			<ul class={claseListaGrupo}>
@@ -99,7 +105,11 @@
 							<span><a href={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)} target="_blank" title={ImagenToken.assets[0].name}><img src={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)} class="img-thumbnail" width="200" alt={ImagenToken.assets[0].name} /></a></span>
 						{:else if (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.mp3') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.ogg') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.wav') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.aac') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.wma') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == 'aiff')}
 							<span>
-								<audio src={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)} title={ImagenToken.assets[0].name} controls></audio>
+								<!--<AudioPlayer
+									src={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)}
+									title={ImagenToken.assets[0].name}
+								/> -->
+								 <audio src={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)} title={ImagenToken.assets[0].name} controls></audio> 
 							</span>
 						{:else if (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.mp4') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.mov') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.3gp')}
 							<span>
@@ -111,7 +121,7 @@
 					</li>
 				{:else}
 					<li class={claseLista}>
-						<span>Sin imagen</span>
+						<span class="text-danger">Aditional Register 9 Empty</span>
 					</li>
 				{/if}
 				
@@ -150,25 +160,68 @@
 				</li>
 				<li class="list-group-item bg-dark text-light">Token aditionals registers</li>
 				<li class={claseLista}>
-					<span class="text-break"><small><strong>R4: </strong>{ImagenToken.additionalRegisters.R4}</span>
+					<span class="text-break"><small><strong>R4: </strong>
+						{#if ImagenToken.additionalRegisters.R4}
+							{ImagenToken.additionalRegisters.R4}
+						{:else}
+							Empty
+						{/if}
+					</span>
 				</li>
 				<li class={claseLista}>
-					<span class="text-break"><small><strong>R5: </strong>{ImagenToken.additionalRegisters.R5}</span>
+					<span class="text-break"><small><strong>R5: </strong>
+						{#if ImagenToken.additionalRegisters.R5}
+							{ImagenToken.additionalRegisters.R5}
+						{:else}
+							Empty
+						{/if}
+					</span>
 				</li>
 				<li class={claseLista}>	
-					<span class="text-break"><small><strong>R6: </strong>{ImagenToken.additionalRegisters.R6}</span>
+					<span class="text-break"><small><strong>R6: </strong>
+						{#if ImagenToken.additionalRegisters.R6}
+							{ImagenToken.additionalRegisters.R6}
+						{:else}
+							Empty
+						{/if}
+					</span>
 				</li>
 				<li class={claseLista}>	
-					<span class="text-break"><small><strong>R7: </strong>{ImagenToken.additionalRegisters.R7}</span>
+					<span class="text-break"><small><strong>R7: </strong>
+						{#if ImagenToken.additionalRegisters.R7}
+							{ImagenToken.additionalRegisters.R7}
+						{:else}
+							Empty
+						{/if}
+					</span>
 				</li>
 				<li class={claseLista}>
-					<span class="text-break"><small><strong>R8: </strong>{ImagenToken.additionalRegisters.R8}</span>
+					<span class="text-break"><small><strong>R8: </strong>
+						{#if ImagenToken.additionalRegisters.R8}
+							{ImagenToken.additionalRegisters.R8}
+						{:else}
+							Empty
+						{/if}
+					</span>
+
 				</li>
 				<li class={claseLista}>
-					<span class="text-break"><small><strong>R9Cod: </strong>{ImagenToken.additionalRegisters.R9}</small></span>
+					<span class="text-break"><small><strong>R9Cod: </strong>
+						{#if ImagenToken.additionalRegisters.R9}
+							{ImagenToken.additionalRegisters.R9}
+						{:else}
+							Empty
+						{/if}
+					</span>
 				</li>
 				<li class={claseLista}>
-					<span class="text-break"><small><strong>R9Dec: </strong> <a href={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)}>{toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)}</a></small></span>
+					<span class="text-break"><small><strong>R9Dec: </strong> 
+						{#if ImagenToken.additionalRegisters.R9}
+						<a href={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)}>{toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)}</a>
+						{:else}
+							Empty
+						{/if}
+					</small></span>
 				</li>
 			{/each}
 			</ul>
