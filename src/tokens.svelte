@@ -1,6 +1,4 @@
 <script>
-	//import AudioPlayer, { stopAll } from './AudioPlayer.svelte';
-
 	let value = ''
 	let response = []
 	let informacionCompletaTokens = []
@@ -50,6 +48,8 @@
 	    }
 	    return str;
 	}
+
+	
 </script>
 
 <svelte:head>
@@ -67,7 +67,7 @@
 			<a href="https://ergotokens.org" class="mb-1"><img src="ergo.png" alt="Logotype Ergo" width="100"></a>
 		</div>
 		<div class="col-7 col-md-8">
-			<input class="form-control mx-2" on:input={handleInput} placeholder="Your token name (5 letters min)" value={value}>
+			<input class="form-control mx-2" on:input={handleInput} placeholder="Your id token or token name (5 letters min)" value={value}>
 		</div>
 		<div class="col-3 col-md-2">
 			<a href="https://ergonfts.org" title="Ergo NFTs" class="btn bg-dark text-secondary border border-secondary ml-2">NFTs</a>
@@ -160,43 +160,50 @@
 				</li>
 				<li class="list-group-item bg-dark text-light">Token aditionals registers</li>
 				<li class={claseLista}>
-					<span class="text-break"><small><strong>R4: </strong>
+					<span class="text-break"><small><strong>R4 </strong>Token verbose name: 
 						{#if ImagenToken.additionalRegisters.R4}
 							{ImagenToken.additionalRegisters.R4}
 						{:else}
 							Empty
 						{/if}
+					<br>
+					UTF-8 representation:<mark>{toUtf8String(ImagenToken.additionalRegisters.R4).substr(2)}</mark>
 					</span>
 				</li>
 				<li class={claseLista}>
-					<span class="text-break"><small><strong>R5: </strong>
+					<span class="text-break"><small><strong>R5 </strong> Token description:
 						{#if ImagenToken.additionalRegisters.R5}
 							{ImagenToken.additionalRegisters.R5}
 						{:else}
 							Empty
 						{/if}
+						<br>
+						UTF-8 representation: <mark>{toUtf8String(ImagenToken.additionalRegisters.R5).substr(2)}</mark>
 					</span>
 				</li>
 				<li class={claseLista}>	
-					<span class="text-break"><small><strong>R6: </strong>
+					<span class="text-break"><small><strong>R6 </strong> Number of decimals:
 						{#if ImagenToken.additionalRegisters.R6}
 							{ImagenToken.additionalRegisters.R6}
 						{:else}
 							Empty
 						{/if}
+						<br>
+						<mark>{ImagenToken.additionalRegisters.R6.length}</mark>
 					</span>
 				</li>
 				<li class={claseLista}>	
-					<span class="text-break"><small><strong>R7: </strong>
+					<span class="text-break"><small><strong>R7 </strong>NFT (Picture-0e020101 Audio-0e020102):
 						{#if ImagenToken.additionalRegisters.R7}
-							{ImagenToken.additionalRegisters.R7}
+							<br>
+							<mark>{ImagenToken.additionalRegisters.R6}</mark>
 						{:else}
 							Empty
 						{/if}
 					</span>
 				</li>
 				<li class={claseLista}>
-					<span class="text-break"><small><strong>R8: </strong>
+					<span class="text-break"><small><strong>R8 </strong>SHA256 hash of the picture: 
 						{#if ImagenToken.additionalRegisters.R8}
 							{ImagenToken.additionalRegisters.R8}
 						{:else}
@@ -206,22 +213,15 @@
 
 				</li>
 				<li class={claseLista}>
-					<span class="text-break"><small><strong>R9Cod: </strong>
+					<span class="text-break"><small><strong>R9 </strong> Optional - link to the artwork (UTF-8 representation)
 						{#if ImagenToken.additionalRegisters.R9}
 							{ImagenToken.additionalRegisters.R9}
 						{:else}
 							Empty
 						{/if}
+						<br>
+						<mark><a href={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)}>{toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)}</a></mark>
 					</span>
-				</li>
-				<li class={claseLista}>
-					<span class="text-break"><small><strong>R9Dec: </strong> 
-						{#if ImagenToken.additionalRegisters.R9}
-						<a href={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)}>{toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)}</a>
-						{:else}
-							Empty
-						{/if}
-					</small></span>
 				</li>
 			{/each}
 			</ul>
