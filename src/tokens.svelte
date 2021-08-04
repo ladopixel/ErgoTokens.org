@@ -1,4 +1,7 @@
 <script>
+	
+	import {location, querystring} from 'svelte-spa-router'
+
 	let value = ''
 	let response = []
 	let informacionCompletaTokens = []
@@ -47,6 +50,18 @@
 	        str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
 	    }
 	    return str;
+	}
+
+	// Rescatar valor y mostrar token desde URL
+	let valorIdToken = ''
+	valorIdToken = JSON.stringify($querystring)
+	if (valorIdToken.substring(1, 6) == 'token'){
+		valorIdToken = valorIdToken.substring(7, valorIdToken.length - 1);
+		informacionCompletaTokens = fetch(`https://api.ergoplatform.com/api/v0/assets/${valorIdToken}/issuingBox`)
+			.then (res => res.json())
+			.then (apiResponseToken => {
+				return apiResponseToken || []
+			})
 	}
 
 	
@@ -105,10 +120,6 @@
 							<span><a href={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)} target="_blank" title={ImagenToken.assets[0].name}><img src={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)} class="img-thumbnail" width="200" alt={ImagenToken.assets[0].name} /></a></span>
 						{:else if (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.mp3') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.ogg') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.wav') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.aac') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.wma') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == 'aiff')}
 							<span>
-								<!--<AudioPlayer
-									src={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)}
-									title={ImagenToken.assets[0].name}
-								/> -->
 								 <audio src={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)} title={ImagenToken.assets[0].name} controls></audio> 
 							</span>
 						{:else if (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.mp4') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.mov') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.3gp')}
