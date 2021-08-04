@@ -4,6 +4,10 @@
 Website to view information on tokens created on the Ergo blockchain.
 Ergotokens.org is a search engine for tokens on the Ergo blockchain, this search engine provides information about each of the tokens.
 
+- Details of a specific token >> https://ergotokens.org/#/?token=tokenID
+
+(This website does not use cookies).
+
 The results shown are being rescued from the ergo APIs:
 
 - v0 > https://explorer.ergoplatform.com/en/api
