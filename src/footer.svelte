@@ -3,14 +3,17 @@
 </script>
 <center>
 	<small>
-		<button type="button" title="FAQ" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#modalFaq"> FAQ</button>
+		<button type="button" title="FAQ" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#modalFaq">FAQ</button>
 		<a href="https://ergoplatform.org" title="ergoplatform.org" class="text-secondary">
 			<img src="Ergo-miniatura.png" title="ergoplatform.org" width="25" class="my-2 mx-2" alt="Logotype Ergo">ergoplatform.org
 		</a>
 		<a href="https://github.com/ladopixel/ergotokens" title="ergotokens.org Github" class="text-secondary">
 			<img src="Github.png" title="ergotokens.org Github " width="25" class="my-2 mx-2" alt="Logotype Github">Github
 		</a>
-		<button type="button" title="Donate :)" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#modalDonate"> <i class="bi bi-hand-thumbs-up-fill"></i></button>
+		<button type="button" title="Donate :)" data-bs-toggle="modal" class="btn btn-dark" data-bs-target="#modalDonate"> <i class="bi bi-hand-thumbs-up-fill"></i></button>
+		<a href="https://instagram.com/ergonfts" target="_blank" title="Instagram ErgoNFTs" class="btn btn-dark text-light"><i class="bi bi-instagram"></i></a>
+		<a href="https://discord.gg/8KdWfpHNZR" target="_blank" title="Discord ErgoNFTs" class="btn btn-dark text-light"><i class="bi bi-discord"></i></a>
+
 	</small>
 </center>
 
