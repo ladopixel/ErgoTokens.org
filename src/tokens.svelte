@@ -65,18 +65,20 @@
 	let valorIdToken = ''
 	valorIdToken = JSON.stringify($querystring)
 	if (valorIdToken.substring(1, 6) == 'token'){
-		valorIdToken = valorIdToken.substring(7, valorIdToken.length - 1);
+		valorIdToken = valorIdToken.substring(7, valorIdToken.length - 1)
 		informacionCompletaTokens = fetch(`https://api.ergoplatform.com/api/v0/assets/${valorIdToken}/issuingBox`)
 			.then (res => res.json())
 			.then (apiResponseToken => {
+				fetch(`https://api.ergoplatform.com/api/v1/tokens/` + valorIdToken)
+					.then(response => response.json())
+					.then(consulta => {
+						valorHTMLAscii = consulta.description
+					})
+				.catch(error => console.error(error))
 				return apiResponseToken || []
 			})
-	}
-
-	// function verR5(idToken){
 		
-	// }
-	
+	}
 </script>
 
 <svelte:head>
@@ -199,7 +201,7 @@
 							{ImagenToken.additionalRegisters.R5}
 							<br>
 							<pre>
-								{@html valorHTMLAscii}
+								{valorHTMLAscii}
 							</pre>
 						{:else}
 							Empty
