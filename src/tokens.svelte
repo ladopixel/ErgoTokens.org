@@ -7,6 +7,8 @@
 	let informacionCompletaTokens = []
 	let selected = ''
 
+	let valorHTMLAscii = ''
+
 	let claseLista = 'list-group-item'
 	let claseListaGrupo = 'list-group'
 
@@ -39,6 +41,13 @@
 				return apiResponseToken || []
 			})
 		}
+		fetch(`https://api.ergoplatform.com/api/v1/tokens/` + selected)
+				.then(response => response.json())
+				.then(consulta => {
+					//alert(consulta.description)
+					valorHTMLAscii = consulta.description
+				})
+				.catch(error => console.error(error));
 	}
 
 	function toUtf8String(hex) {
@@ -64,6 +73,9 @@
 			})
 	}
 
+	// function verR5(idToken){
+		
+	// }
 	
 </script>
 
@@ -185,11 +197,13 @@
 					<span class="text-break"><small><strong>R5 </strong> Token description:
 						{#if ImagenToken.additionalRegisters.R5}
 							{ImagenToken.additionalRegisters.R5}
+							<br>
+							<pre>
+								{@html valorHTMLAscii}
+							</pre>
 						{:else}
 							Empty
 						{/if}
-						<br>
-						UTF-8 representation: <mark>{toUtf8String(ImagenToken.additionalRegisters.R5).substr(2)}</mark>
 					</span>
 				</li>
 				<li class={claseLista}>	
