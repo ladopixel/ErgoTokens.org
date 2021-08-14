@@ -200,8 +200,9 @@
 						{#if ImagenToken.additionalRegisters.R5}
 							{ImagenToken.additionalRegisters.R5}
 							<br>
+							<hr>
 							<pre>
-								{valorHTMLAscii}
+								<mark>{valorHTMLAscii}</mark>
 							</pre>
 						{:else}
 							Empty
