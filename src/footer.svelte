@@ -12,7 +12,7 @@
 		</a>
 		<button type="button" title="Donate :)" data-bs-toggle="modal" class="btn btn-dark" data-bs-target="#modalDonate"> <i class="bi bi-hand-thumbs-up-fill"></i></button>
 		<a href="https://instagram.com/ergonfts" target="_blank" title="Instagram ErgoNFTs" class="btn btn-dark text-light"><i class="bi bi-instagram"></i></a>
-		<a href="https://discord.gg/8KdWfpHNZR" target="_blank" title="Discord ErgoNFTs" class="btn btn-dark text-light"><i class="bi bi-discord"></i></a>
+		<a href="https://discord.gg/pKg4m8xysa" target="_blank" title="Discord ErgoPlatform.org" class="btn btn-dark text-light"><i class="bi bi-discord"></i></a>
 
 	</small>
 </center>
