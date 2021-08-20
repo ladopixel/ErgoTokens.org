@@ -233,7 +233,7 @@
 				<li class={claseLista}>
 					<span class="text-break"><small><strong>R8 </strong>SHA256 hash of the picture: 
 						{#if ImagenToken.additionalRegisters.R8}
-							{ImagenToken.additionalRegisters.R8}
+							<mark>{(ImagenToken.additionalRegisters.R8).substr(4)}</mark>
 						{:else}
 							Empty
 						{/if}
