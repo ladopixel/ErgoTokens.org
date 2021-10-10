@@ -61,6 +61,13 @@
 	    return str;
 	}
 
+	function resolveIpfs(url) {
+		const ipfsPrefix = 'ipfs://'
+		if (!url.startsWith(ipfsPrefix)) return url
+		else return url.replace(ipfsPrefix, 'https://cloudflare-ipfs.com/ipfs/')
+	}
+
+
 	// Rescatar valor y mostrar token desde URL
 	let valorIdToken = ''
 	valorIdToken = JSON.stringify($querystring)
@@ -130,15 +137,15 @@
 			{#each informacionCompletaTokens as ImagenToken}
 				{#if ImagenToken.additionalRegisters.R9}
 					<li class={claseLista}>
-						{#if (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.gif') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.png') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.jpg') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.bmp') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == 'jpeg') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.svg') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.raw') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.nef')}
-							<span><a href={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)} target="_blank" title={ImagenToken.assets[0].name}><img src={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)} class="img-thumbnail" width="200" alt={ImagenToken.assets[0].name} /></a></span>
-						{:else if (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.mp3') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.ogg') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.wav') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.aac') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.wma') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == 'aiff')}
+						{#if ImagenToken.additionalRegisters.R7 == '0e020101'}
+							<span><a href={resolveIpfs(toUtf8String(ImagenToken.additionalRegisters.R9).substr(2))} target="_blank" title={ImagenToken.assets[0].name}><img src={resolveIpfs(toUtf8String(ImagenToken.additionalRegisters.R9).substr(2))} class="img-thumbnail" width="200" alt={ImagenToken.assets[0].name} /></a></span>
+						{:else if ImagenToken.additionalRegisters.R7 == '0e020102'}
 							<span>
-								 <audio src={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)} title={ImagenToken.assets[0].name} controls></audio> 
+								 <audio src={resolveIpfs(toUtf8String(ImagenToken.additionalRegisters.R9).substr(2))} title={ImagenToken.assets[0].name} controls></audio> 
 							</span>
 						{:else if (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.mp4') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.mov') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.3gp')}
 							<span>
-								<video src={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)} controls></video>
+								<video src={resolveIpfs(toUtf8String(ImagenToken.additionalRegisters.R9).substr(2))} controls></video>
 							</span>
 
 						{/if}
@@ -248,7 +255,7 @@
 							Empty
 						{/if}
 						<br>
-						<mark><a href={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)}>{toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)}</a></mark>
+						<mark><a href={resolveIpfs(toUtf8String(ImagenToken.additionalRegisters.R9).substr(2))} target="_blank">{resolveIpfs(toUtf8String(ImagenToken.additionalRegisters.R9).substr(2))}</a></mark>
 					</span>
 				</li>
 			{/each}
