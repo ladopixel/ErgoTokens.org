@@ -37,14 +37,19 @@
 		value = event.target.value
 	}
 
+
 	// Lastoken
-	fetch(`https://api.ergoplatform.com/api/v1/tokens?limit=1`)
-		.then (res => res.json())
-		.then (apiResponse => {
-			objetoLastToken = {
-				id: apiResponse.items[0].id,
-			}
-	})
+	// fetch(`https://api.ergoplatform.com/api/v1/tokens?limit=1`)
+	// 	.then (res => res.json())
+	// 	.then (apiResponse => {
+	// 		objetoLastToken = {
+	// 			id: apiResponse.items[0].id,
+	// 		}
+	// })
+	// function lastToken(){
+	// 	window.location = `https://ergotokens.org/#/?token=${objetoLastToken.id}`
+	// }
+
 
 	// Cada vez que se modifique el valor de value
 	$: if (value.length > 4){
@@ -256,8 +261,8 @@
 		{/await}
 	</select>
 
-	<!-- LastToken-->			
-	<a href='https://ergotokens.org/#/?token={objetoLastToken.id}' title="Last token minted in Ergo" class="btn btn-sm border border-secondary text-secondary"><i class="bi bi-chevron-bar-right"></i> Last token minted in Ergo</a>
+	<!-- LastToken-->	
+	<!-- <button on:click|once={lastToken} class="btn btn-sm border border-secondary text-secondary"><i class="bi bi-chevron-bar-right"></i> Last token minted in Ergo</button> -->
 
 	{#await informacionCompletaTokens}
 		<span class="text-secondary">Loading...</span>
