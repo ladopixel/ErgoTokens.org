@@ -7,12 +7,14 @@
 	let informacionCompletaTokens = []
 	let selected = ''
 
+	let numWallets = 0
+	let lastWalletToken = ""
+
 	let valorHTMLAscii = ''
 
-	let claseLista = 'list-group-item'
-	let claseListaGrupo = 'list-group'
-
 	let claseSelect = 'mb-2 mt-2 form-select form-select-sm '
+
+	let claseNoImage = ' border border-secondary'
 
 	function cambiarDeColorSelect(){
 		claseSelect = claseSelect + 'bg-info text-light'
@@ -44,10 +46,23 @@
 		fetch(`https://api.ergoplatform.com/api/v1/tokens/` + selected)
 				.then(response => response.json())
 				.then(consulta => {
-					//alert(consulta.description)
 					valorHTMLAscii = consulta.description
 				})
 				.catch(error => console.error(error));
+	}
+
+
+	// Cada vez que se modifique el valor de select
+	$: {
+		if ((selected != '') && (selected !=0)) {
+			fetch(`https://api.ergoplatform.com/api/v1/boxes/byTokenId/${selected}`)
+				.then (res => res.json())
+				.then (apiResponseToken => {
+					numWallets = apiResponseToken.items.length
+					lastWalletToken = apiResponseToken.items[numWallets-1].address
+				})
+				.catch(error => console.error(error));
+		}
 	}
 
 	function toUtf8String(hex) {
@@ -59,6 +74,12 @@
 	        str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
 	    }
 	    return str;
+	}
+
+	function resolveIpfs(url) {
+		const ipfsPrefix = 'ipfs://'
+		if (!url.startsWith(ipfsPrefix)) return url
+		else return url.replace(ipfsPrefix, 'https://cloudflare-ipfs.com/ipfs/')
 	}
 
 	// Rescatar valor y mostrar token desde URL
@@ -125,134 +146,332 @@
 		<span class="text-secondary">Loading...</span>
 	{:then informacionCompletaTokens}
 		{#if informacionCompletaTokens.length > 0}
-			<ul class={claseListaGrupo}>
-				<li class="list-group-item bg-dark text-light">Tokens info</li>
+			<center><h3 class="text-secondary center">Token info</h3></center>
 			{#each informacionCompletaTokens as ImagenToken}
-				{#if ImagenToken.additionalRegisters.R9}
-					<li class={claseLista}>
-						{#if (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.gif') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.png') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.jpg') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.bmp') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == 'jpeg') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.svg') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.raw') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.nef')}
-							<span><a href={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)} target="_blank" title={ImagenToken.assets[0].name}><img src={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)} class="img-thumbnail" width="200" alt={ImagenToken.assets[0].name} /></a></span>
-						{:else if (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.mp3') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.ogg') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.wav') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.aac') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.wma') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == 'aiff')}
-							<span>
-								 <audio src={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)} title={ImagenToken.assets[0].name} controls></audio> 
-							</span>
-						{:else if (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.mp4') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.mov') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.3gp')}
-							<span>
-								<video src={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)} controls></video>
-							</span>
 
-						{/if}
+			<div class="container">
+				<div class="card px-3 py-3" >
+					<div class="row no-gutters">
+						<div class="col-lg-3">
+							{#if ImagenToken.additionalRegisters.R7 == '0e020101'}
+								<img src={resolveIpfs(toUtf8String(ImagenToken.additionalRegisters.R9).substr(2))} class="card-img-top rounded" style="width: 16rem;" alt={ImagenToken.assets[0].name} />
+							{:else if ImagenToken.additionalRegisters.R7 == '0e020102'}
+								<span>
+									<audio src={resolveIpfs(toUtf8String(ImagenToken.additionalRegisters.R9).substr(2))} title={ImagenToken.assets[0].name} controls></audio> 
+								</span>
+							{:else if (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.mp4') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.mov') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.3gp')}
+								<span>
+									<video src={resolveIpfs(toUtf8String(ImagenToken.additionalRegisters.R9).substr(2))} controls></video>
+								</span>
+							{:else}
+								<center>
+									<div class="mark mt-3 py-3 {claseNoImage}">No image-audio token</div>
+								</center>
+							{/if}
+						</div>
+						<div class="col-lg-9" >
+							<div class="card-body bg-light rounded px-3 py-2">
+								<!-- Name -->
+								<h5 class="card-title text-dark">{ImagenToken.assets[0].name}</h5>
 
-					</li>
-				{:else}
-					<li class={claseLista}>
-						<span class="text-danger">Aditional Register 9 Empty</span>
-					</li>
-				{/if}
-				
-				<li class={claseLista}>
-					<span class="text-break"><small><strong>Id: </strong>{ImagenToken.id}</span>
-				</li>
-				<li class={claseLista}>
-					<span class="text-break"><small><strong>Tx id: </strong>{ImagenToken.txId}</span>
-				</li>
-				<li class={claseLista}>
-					<span class="text-break"><strong>Value: </strong>{ImagenToken.value}</span>
-				</li>
-				<li class={claseLista}>
-					<span><small><strong>Creation Height: </strong>{ImagenToken.creationHeight}</span>
-				</li>
-				<li class={claseLista}>
-					<span class="text-break"><small><strong>Ergo Tree: </strong>{ImagenToken.ergoTree}</span>
-				</li>
-				<li class={claseLista}>
-					<span class="text-break"><small><strong>Address: </strong>{ImagenToken.address}</span>
-				</li>
-				<li class={claseLista}>
-					<span class="text-break"><small><strong>Token Id: </strong>{ImagenToken.assets[0].tokenId}</span>
-				</li>
-				<li class={claseLista}>
-					<span><small><strong>Amount: </strong>{ImagenToken.assets[0].amount}</span>
-				</li>
-				<li class={claseLista}>
-					<span class="text-break"><small><strong>Name: </strong>{ImagenToken.assets[0].name}</span>
-				</li>
-				<li class={claseLista}>
-					<span><small><strong>Decimals: </strong>{ImagenToken.assets[0].decimals}</span>
-				</li>
-				<li class={claseLista}>
-					<span><small><strong>Type: </strong>{ImagenToken.assets[0].type}</span>
-				</li>
-				<li class="list-group-item bg-dark text-light">Token aditionals registers</li>
-				<li class={claseLista}>
-					<span class="text-break"><small><strong>R4 </strong>Token verbose name: 
-						{#if ImagenToken.additionalRegisters.R4}
-							{ImagenToken.additionalRegisters.R4}
-						{:else}
-							Empty
-						{/if}
-					<br>
-					UTF-8 representation:<mark>{toUtf8String(ImagenToken.additionalRegisters.R4).substr(2)}</mark>
-					</span>
-				</li>
-				<li class={claseLista}>
-					<span class="text-break"><small><strong>R5 </strong> Token description:
-						{#if ImagenToken.additionalRegisters.R5}
-							{ImagenToken.additionalRegisters.R5}
-							<br>
-							<hr>
-							<pre>
-								<mark>{valorHTMLAscii}</mark>
-							</pre>
-						{:else}
-							Empty
-						{/if}
-					</span>
-				</li>
-				<li class={claseLista}>	
-					<span class="text-break"><small><strong>R6 </strong> Number of decimals:
-						{#if ImagenToken.additionalRegisters.R6}
-							{ImagenToken.additionalRegisters.R6}
-						{:else}
-							Empty
-						{/if}
-						<br>
-						<mark>{ImagenToken.additionalRegisters.R6.length}</mark>
-					</span>
-				</li>
-				<li class={claseLista}>	
-					<span class="text-break"><small><strong>R7 </strong>NFT (Picture-0e020101 Audio-0e020102):
-						{#if ImagenToken.additionalRegisters.R7}
-							<br>
-							<mark>{ImagenToken.additionalRegisters.R6}</mark>
-						{:else}
-							Empty
-						{/if}
-					</span>
-				</li>
-				<li class={claseLista}>
-					<span class="text-break"><small><strong>R8 </strong>SHA256 hash of the picture: 
-						{#if ImagenToken.additionalRegisters.R8}
-							<mark>{(ImagenToken.additionalRegisters.R8).substr(4)}</mark>
-						{:else}
-							Empty
-						{/if}
-					</span>
+								<!-- ID -->
+								<div class="bg-white small mt-1 mb-1 px-2 py-1 rounded">
+									<small>
+										<i class="bi bi-info-square"></i>
+										<strong>ID </strong>
+										<span class="text-secondary">
+											{ImagenToken.assets[0].tokenId.substring(0, 10)}...{ImagenToken.assets[0].tokenId.slice(-10)}
+										</span>
+									</small>
+								</div>
+								
+								<!-- SHA -->
+								{#if ImagenToken.additionalRegisters.R8}
+									<div class="bg-white small mt-1 mb-1 px-2 py-1 rounded">
+										<small>
+											<i class="bi bi-patch-check"></i>
+											<strong>SHA256 </strong>
+											<span class="text-secondary">
+												{((ImagenToken.additionalRegisters.R8).substr(4)).substring(0, 10)}...{((ImagenToken.additionalRegisters.R8).substr(4)).slice(-10)}
+											</span>
+										</small>
+									</div>
+								{/if}
 
-				</li>
-				<li class={claseLista}>
-					<span class="text-break"><small><strong>R9 </strong> Optional - link to the artwork (UTF-8 representation)
-						{#if ImagenToken.additionalRegisters.R9}
-							{ImagenToken.additionalRegisters.R9}
-						{:else}
-							Empty
-						{/if}
-						<br>
-						<mark><a href={toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)}>{toUtf8String(ImagenToken.additionalRegisters.R9).substr(2)}</a></mark>
-					</span>
-				</li>
+								<!-- Creation Height -->
+								<div class="bg-white small mt-1 mb-1 px-2 py-1 rounded">
+									<small>
+										<i class="bi bi-bricks"></i>
+										<strong>Creation Height </strong>
+										<span class="text-secondary">
+											{ImagenToken.creationHeight}
+										</span>
+									</small>
+								</div>
+									
+								<!-- Minting Address -->
+								<!-- <div class="bg-white small mt-1 mb-1 px-2 py-1 rounded">
+									<span class="text-break">
+										<small>
+											<i class="bi bi-wallet2"></i>
+											<strong>Minting address </strong>
+											<span class="text-secondary">
+												{ImagenToken.address.substring(0, 10)}...{ImagenToken.address.slice(-10)}
+											</span>
+										</small>
+									</span>
+								</div> -->
+
+								<!-- Address -->
+								<div class="bg-white small mt-1 mb-1 px-2 py-1 rounded">
+									<span class="text-break">
+										<small>
+											<i class="bi bi-wallet"></i>
+											<strong>Current address </strong>
+											<span class="text-secondary">
+												{lastWalletToken}
+											</span>
+										</small>
+									</span>
+								</div>
+
+								<!-- Amount -->
+								<div class="bg-white small mt-1 mb-1 px-2 py-1 rounded">
+									<span class="text-break">
+										<small>
+											<i class="bi bi-stack"></i>
+											<strong>Amount </strong>
+											<span class="text-secondary">
+												{ImagenToken.assets[0].amount}
+											</span>
+										</small>
+									</span>
+								</div>
+
+								<!-- Decimals -->
+								<div class="bg-white small mt-1 mb-1 px-2 py-1 rounded">
+									<span class="text-break">
+										<small>
+											<i class="bi bi-file-binary"></i>
+											<strong>Decimals </strong>
+											<span class="text-secondary">
+												{ImagenToken.assets[0].decimals}
+											</span>
+										</small>
+									</span>
+								</div>
+
+								<!-- Type -->
+								<div class="bg-white small mt-1 mb-1 px-2 py-1 rounded">
+									<span class="text-break">
+										<small>
+											<i class="bi bi-file-earmark-spreadsheet"></i>
+											<strong>Type </strong>
+											<span class="text-secondary">
+												{ImagenToken.assets[0].type}
+											</span>
+										</small>
+									</span>
+								</div>
+							</div>
+						</div>
+						
+						<!-- Column 2 -->
+						<div class="card-body bg-light rounded px-3 py-2 mx-2 my-2">
+							<!-- Description -->
+							<h6 class="mt-2">Descriptions</h6>
+							{#if ImagenToken.additionalRegisters.R5}
+								<div class="accordion accordion-flush" id="accordionFlushExample">
+									<div class="accordion-item">
+										<h2 class="accordion-header" id="flush-headingZero">
+											<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseZero" aria-expanded="false" aria-controls="flush-collapseZero">
+												<small>Description decode</small>
+											</button>
+										</h2>
+										<div id="flush-collapseZero" class="accordion-collapse collapse" aria-labelledby="flush-headingZero" data-bs-parent="#accordionFlushExample">
+											<div class="accordion-body small text-secondary">
+												{toUtf8String(ImagenToken.additionalRegisters.R5)}
+											</div>
+										</div>
+									</div>
+									<div class="accordion-item">
+										<h2 class="accordion-header" id="flush-headingOne">
+											<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+												<small>Description code</small>
+											</button>
+										</h2>
+										<div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+											<div class="accordion-body small text-secondary">
+												{ImagenToken.additionalRegisters.R5}
+											</div>
+										</div>
+									</div>
+									<div class="accordion-item">
+									<h2 class="accordion-header" id="flush-headingThree">
+										<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
+											<small>Description metadata</small>
+										</button>
+									</h2>
+									<div id="flush-collapseThree" class="accordion-collapse collapse" aria-labelledby="flush-headingThree" data-bs-parent="#accordionFlushExample">
+										<div class="accordion-body small text-secondary">
+											Metadatas in ErgoNFTs.org
+										</div>
+									</div>
+									</div>
+									<div class="accordion-item">
+										<h2 class="accordion-header" id="flush-headingFour">
+										<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseFour" aria-expanded="false" aria-controls="flush-collapseFour">
+											<small>Description Ascii</small>
+										</button>
+										</h2>
+										<div id="flush-collapseFour" class="accordion-collapse collapse" aria-labelledby="flush-headingFour" data-bs-parent="#accordionFlushExample">
+										<div class="accordion-body small text-secondary">
+											<pre>
+												<span>{valorHTMLAscii}</span>
+											</pre>
+										</div>
+										</div>
+									</div>
+								</div>
+							{:else}
+								<center>
+									<span class="mark">No description</span>
+								</center>
+							{/if}
+						<!-- </div> -->
+
+						<!-- <div class="card-body bg-light rounded px-3 py-2 mt-3">
+							<h6 class="mt-3">Transition info</h6>
+							<p class="card-text">
+								<span class="text-break"><small><strong>Tx id: </strong>{ImagenToken.txId}</span><br>
+								<span class="text-break"><strong>Value: </strong>{ImagenToken.value}</span><br>
+								<span class="text-break"><small><strong>Ergo Tree: </strong>{ImagenToken.ergoTree}</span>
+							</p>
+						</div> -->
+
+						<!-- <div class="card-body bg-light rounded px-3 py-2 mt-3"> -->
+							<h6 class="mt-3">Additional registers</h6>
+						<div class="accordion accordion-flush" id="accordionFlushExample">
+							<div class="accordion-item">
+								<h2 class="accordion-header" id="flush-headingR4">
+									<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseR4" aria-expanded="false" aria-controls="flush-collapseR4">
+										R4
+									</button>
+								</h2>
+							<div id="flush-collapseR4" class="accordion-collapse collapse" aria-labelledby="flush-headingR4" data-bs-parent="#accordionFlushExample">
+								<div class="accordion-body">
+									<span class="text-break"><small><strong>Token verbose name - UTF-8 representation</strong><br>
+										{#if ImagenToken.additionalRegisters.R4}
+											<mark>{toUtf8String(ImagenToken.additionalRegisters.R4).substr(2)}</mark>
+										{:else}
+											Empty
+										{/if}
+									</span>
+								</div>
+							</div>
+						</div>
+						<div class="accordion-item">
+							<h2 class="accordion-header" id="flush-headingR5">
+								<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseR5" aria-expanded="false" aria-controls="flush-collapseR5">
+									R5
+								</button>
+							</h2>
+							<div id="flush-collapseR5" class="accordion-collapse collapse" aria-labelledby="flush-headingR5" data-bs-parent="#accordionFlushExample">
+								<div class="accordion-body">
+									<span class="text-break"><small><strong>Token description</strong><br>
+										{#if ImagenToken.additionalRegisters.R5}
+											<mark>{toUtf8String(ImagenToken.additionalRegisters.R5)}</mark>
+										{:else}
+											No description
+										{/if}
+									</span>
+								</div>
+							</div>
+						</div>
+						<div class="accordion-item">
+							<h2 class="accordion-header" id="flush-headingR6">
+								<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseR6" aria-expanded="false" aria-controls="flush-collapseR6">
+									R6
+								</button>
+							</h2>
+							<div id="flush-collapseR6" class="accordion-collapse collapse" aria-labelledby="flush-headingR6" data-bs-parent="#accordionFlushExample">
+								<div class="accordion-body">
+									<span class="text-break"><small><strong>Number of decimals</strong><br>
+										{#if ImagenToken.additionalRegisters.R6}
+											<mark>{toUtf8String(ImagenToken.additionalRegisters.R6)}</mark>
+										{:else}
+											Empty
+										{/if}
+									</span>
+								</div>
+							</div>
+						</div>
+						<div class="accordion-item">
+							<h2 class="accordion-header" id="flush-headingR7">
+							<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseR7" aria-expanded="false" aria-controls="flush-collapseR7">
+								R7
+							</button>
+							</h2>
+							<div id="flush-collapseR7" class="accordion-collapse collapse" aria-labelledby="flush-headingR7" data-bs-parent="#accordionFlushExample">
+								<div class="accordion-body">
+									<span class="text-break"><small><strong>NFT (Picture-0e020101 Audio-0e020102)</strong><br>
+										{#if ImagenToken.additionalRegisters.R7}
+											<mark>{ImagenToken.additionalRegisters.R7}</mark>
+										{:else}
+											Empty
+										{/if}
+									</span>
+								</div>
+							</div>
+						</div>
+						<div class="accordion-item">
+							<h2 class="accordion-header" id="flush-headingR8">
+							<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseR8" aria-expanded="false" aria-controls="flush-collapseR8">
+								R8
+							</button>
+							</h2>
+							<div id="flush-collapseR8" class="accordion-collapse collapse" aria-labelledby="flush-headingR8" data-bs-parent="#accordionFlushExample">
+								<div class="accordion-body">
+									<span class="text-break"><small><strong>SHA256 hash of the picture</strong><br>
+										{#if ImagenToken.additionalRegisters.R8}
+											<mark>{(ImagenToken.additionalRegisters.R8).substr(4)}</mark>
+										{:else}
+											Empty
+										{/if}
+									</span>
+								</div>
+							</div>
+						</div>
+						<div class="accordion-item">
+							<h2 class="accordion-header" id="flush-headingR9">
+							<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseR9" aria-expanded="false" aria-controls="flush-collapseR9">
+								R9
+							</button>
+							</h2>
+							<div id="flush-collapseR9" class="accordion-collapse collapse" aria-labelledby="flush-headingR9" data-bs-parent="#accordionFlushExample">
+								<div class="accordion-body">
+									<span class="text-break"><small><strong>Optional - link to the artwork (UTF-8 representation)</strong><br>
+										{#if ImagenToken.additionalRegisters.R9}
+											<mark><a href={resolveIpfs(toUtf8String(ImagenToken.additionalRegisters.R9).substr(2))} target="_blank">{resolveIpfs(toUtf8String(ImagenToken.additionalRegisters.R9).substr(2))}</a></mark>
+										{:else}
+											Empty
+										{/if}
+										<!-- <br>
+										{ImagenToken.additionalRegisters.R9} -->
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+					</div>
+					<!-- Link NFTs -->
+					<div class="my-2">
+						<a href="https://ergonfts.org/#/?token={ImagenToken.assets[0].tokenId}" class="btn btn-sm bg-white text-secondary border border-info small" target="_blank">View in ErgoNFTs.org</a>
+					</div>
+				</div>
+			</div>
+			</div>
 			{/each}
-			</ul>
 		{/if}
 	{:catch error}
 		<p>✖️ Something went wrong: {error.message}</p>
