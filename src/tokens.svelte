@@ -1,11 +1,16 @@
 <script>
 	
 	import {location, querystring} from 'svelte-spa-router'
+	
+	//https://github.com/meloalright/svelte-clipboard
+	import Clipboard from "svelte-clipboard";
 
 	let value = ''
 	let response = []
 	let informacionCompletaTokens = []
 	let selected = ''
+
+	let valorIdToken = ''
 
 	let numWallets = 0
 	let lastWalletToken = ''
@@ -17,9 +22,12 @@
 	let objetoTokenURL = {}
 	let objetoMetadata = {}
 
-	let claseSelect = 'mb-2 mt-2 form-select form-select-sm '
+	let objetoLastToken = {}
 
+	let claseSelect = 'mb-2 mt-2 form-select form-select-sm '
 	let claseNoImage = ' border border-secondary'
+	let classCopyId = ' text-secondary'
+	let classCopyWallet = ' text-secondary'
 
 	function cambiarDeColorSelect(){
 		claseSelect = claseSelect + 'bg-info text-light'
@@ -28,6 +36,15 @@
 	function handleInput(){
 		value = event.target.value
 	}
+
+	// Lastoken
+	fetch(`https://api.ergoplatform.com/api/v1/tokens?limit=1`)
+		.then (res => res.json())
+		.then (apiResponse => {
+			objetoLastToken = {
+				id: apiResponse.items[0].id,
+			}
+	})
 
 	// Cada vez que se modifique el valor de value
 	$: if (value.length > 4){
@@ -69,11 +86,11 @@
 				.then (res => res.json())
 				.then (apiResponseToken => {
 					numWallets = apiResponseToken.total
-					actualWalletToken = apiResponseToken.items[0].address
+					lastWalletToken = apiResponseToken.items[0].address
 					fetch(`https://api.ergoplatform.com/api/v1/boxes/byTokenId/${selected}?offset=${numWallets-1}`)
 						.then (res2 => res2.json())
 						.then (apiResponseToken2 => {
-							lastWalletToken = apiResponseToken2.items[0].address
+							actualWalletToken = apiResponseToken2.items[0].address
 						})
 						.catch(error => console.error(error));
 					
@@ -119,7 +136,6 @@
 	}
 
 	// Rescatar valor y mostrar token desde URL
-	let valorIdToken = ''
 	valorIdToken = JSON.stringify($querystring)
 	if (valorIdToken.substring(1, 6) == 'token'){
 		valorIdToken = valorIdToken.substring(7, valorIdToken.length - 1)
@@ -132,7 +148,39 @@
 						valorHTMLAscii = consulta.description
 					})
 				.catch(error => console.error(error))
+				// Wallets
+				fetch(`https://api.ergoplatform.com/api/v1/boxes/byTokenId/${valorIdToken}`)
+					.then (res => res.json())
+					.then (apiResponseToken => {
+						numWallets = apiResponseToken.total
+						lastWalletToken = apiResponseToken.items[0].address
+						fetch(`https://api.ergoplatform.com/api/v1/boxes/byTokenId/${valorIdToken}?offset=${numWallets-1}`)
+							.then (res2 => res2.json())
+							.then (apiResponseToken2 => {
+								actualWalletToken = apiResponseToken2.items[0].address
+							})
+							.catch(error => console.error(error));
+					})
+					.catch(error => console.error(error));
 				return apiResponseToken || []
+			})
+	}
+
+	// Rescatar valor Metadata y mostrar token desde URL
+	valorIdToken = JSON.stringify($querystring)
+	if (valorIdToken.substring(1, 6) == 'token'){
+		valorIdToken = valorIdToken.substring(7, valorIdToken.length - 1)
+		fetch(`https://api.ergoplatform.com/api/v0/assets/${valorIdToken}/issuingBox`)
+			.then (res => res.json())
+			.then (apiResponseToken => {
+				metadata = toUtf8String(apiResponseToken[0].additionalRegisters.R5).substr(3)
+				if(isJson(metadata)){
+					objetoTokenURL = {
+						description: ''
+					}
+					objetoMetadata = JSON.parse(metadata)
+					visualizoMetadata(objetoMetadata)
+				}
 			})
 	}
 
@@ -189,30 +237,34 @@
 			<a href="https://ergonfts.org" title="Ergo NFTs" class="btn bg-dark text-secondary border border-secondary ml-2">NFTs</a>
 		</div>
 	</div>
-	
+
 	<select bind:value={selected} class={claseSelect}>
-	{#await response}
-		<p>searching...</p>
-	{:then response}
-		{#if response.length > 0}
-			<option value=0 selected>Select token</option>
-			{cambiarDeColorSelect()}
-			{#each response as token}
-				<option value={token.id}>{token.name}</option>
-			{/each}
-		{:else}
-			<span>No tokens</span>
-		{/if}
-	{:catch error}
-		<p>✖️Something went wrong: {error.message}</p>
-	{/await}
+		{#await response}
+			<p>searching...</p>
+		{:then response}
+			{#if response.length > 0}
+				<option value=0 selected>Select token</option>
+				{cambiarDeColorSelect()}
+				{#each response as token}
+					<option value={token.id}>{token.name}</option>
+				{/each}
+			{:else}
+				<span>No tokens</span>
+			{/if}
+		{:catch error}
+			<p>✖️Something went wrong: {error.message}</p>
+		{/await}
 	</select>
+
+	<!-- LastToken-->			
+	<a href='https://ergotokens.org/#/?token={objetoLastToken.id}' title="Last token minted in Ergo" class="btn btn-sm border border-secondary text-secondary"><i class="bi bi-chevron-bar-right"></i> Last token minted in Ergo</a>
 
 	{#await informacionCompletaTokens}
 		<span class="text-secondary">Loading...</span>
 	{:then informacionCompletaTokens}
 		{#if informacionCompletaTokens.length > 0}
-			<center><h3 class="text-secondary center">Token info</h3></center>
+
+			<center><h4 class="text-secondary center">Token info</h4></center>
 			{#each informacionCompletaTokens as ImagenToken}
 
 			<div class="container">
@@ -223,7 +275,7 @@
 								<img src={resolveIpfs(toUtf8String(ImagenToken.additionalRegisters.R9).substr(2))} class="card-img-top rounded" style="width: 16rem;" alt={ImagenToken.assets[0].name} />
 							{:else if ImagenToken.additionalRegisters.R7 == '0e020102'}
 								<span>
-									<audio src={resolveIpfs(toUtf8String(ImagenToken.additionalRegisters.R9).substr(2))} style="width: 16rem;" title={ImagenToken.assets[0].name} controls></audio> 
+									<center><audio src={resolveIpfs(toUtf8String(ImagenToken.additionalRegisters.R9).substr(2))} style="width: 12rem;" title={ImagenToken.assets[0].name} controls></audio> </center>
 								</span>
 							{:else if (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.mp4') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.mov') || (toUtf8String(ImagenToken.additionalRegisters.R9).slice(-4) == '.3gp')}
 								<span>
@@ -253,6 +305,17 @@
 										<strong>ID </strong>
 										<span class="text-secondary">
 											{ImagenToken.assets[0].tokenId}
+											<Clipboard 
+												text={ImagenToken.assets[0].tokenId}
+												let:copy
+												on:copy={() => {
+													classCopyId = ' text-info'
+												}}>
+												
+												<button on:click={copy} class="btn btn-sm border border-white bg-white {classCopyId}">
+													<i class="bi bi-files"></i>
+												</button>
+											</Clipboard>
 										</span>
 									</small>
 								</div>
@@ -261,10 +324,9 @@
 								{#if ImagenToken.additionalRegisters.R8}
 									<div class="bg-white small mt-1 mb-1 px-2 py-1 rounded">
 										<small>
-											<i class="bi bi-patch-check text-info"></i>
+											<i class="bi bi-patch-check"></i>
 											<strong>SHA256 </strong>
 											<span class="text-secondary">
-												<!-- {((ImagenToken.additionalRegisters.R8).substr(4)).substring(0, 10)}...{((ImagenToken.additionalRegisters.R8).substr(4)).slice(-10)} -->
 												{ImagenToken.additionalRegisters.R8.substr(4)}
 											</span>
 										</small>
@@ -283,17 +345,17 @@
 								</div>
 									
 								<!-- Minting Address -->
-								<div class="bg-white small mt-1 mb-1 px-2 py-1 rounded">
+								<!-- <div class="bg-white small mt-1 mb-1 px-2 py-1 rounded">
 									<span class="text-break">
 										<small>
 											<i class="bi bi-wallet2"></i>
 											<strong>Minting address </strong>
 											<span class="text-secondary">
-												{actualWalletToken}
+												{lastWalletToken}
 											</span>
 										</small>
 									</span>
-								</div>
+								</div> -->
 
 								<!-- Address -->
 								<div class="bg-white small mt-1 mb-1 px-2 py-1 rounded">
@@ -302,7 +364,18 @@
 											<i class="bi bi-wallet"></i>
 											<strong>Current address </strong>
 											<span class="text-secondary">
-												{lastWalletToken}
+												{actualWalletToken}
+												<!-- <Clipboard
+													text={actualWalletToken}
+													let:copy
+													on:copy={() => {
+														classCopyWallet = ' text-info'
+													}}>
+
+													<button on:click={copy} class="btn btn-sm border border-white bg-white {classCopyWallet}">
+														<i class="bi bi-files"></i>
+													</button>
+												</Clipboard> -->
 											</span>
 										</small>
 									</span>
@@ -412,15 +485,6 @@
 								</center>
 							{/if}
 						<!-- </div> -->
-
-						<!-- <div class="card-body bg-light rounded px-3 py-2 mt-3">
-							<h6 class="mt-3">Transition info</h6>
-							<p class="card-text">
-								<span class="text-break"><small><strong>Tx id: </strong>{ImagenToken.txId}</span><br>
-								<span class="text-break"><strong>Value: </strong>{ImagenToken.value}</span><br>
-								<span class="text-break"><small><strong>Ergo Tree: </strong>{ImagenToken.ergoTree}</span>
-							</p>
-						</div> -->
 
 						<!-- <div class="card-body bg-light rounded px-3 py-2 mt-3"> -->
 							<h6 class="mt-3">Additional registers</h6>
@@ -538,6 +602,7 @@
 					<!-- Link NFTs -->
 					<div class="my-2">
 						<a href="https://ergonfts.org/#/?token={ImagenToken.assets[0].tokenId}" class="btn btn-sm bg-white text-secondary border border-info small" target="_blank">View in ErgoNFTs.org</a>
+						<a href="https://explorer.ergoplatform.com/en/transactions/{ImagenToken.txId}" class="btn btn-sm bg-white text-secondary border border-info small" target="_blank">See transition</a>
 					</div>
 				</div>
 			</div>
