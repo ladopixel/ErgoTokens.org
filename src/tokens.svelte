@@ -201,6 +201,27 @@
 					.then (apiResponseToken => {
 						numWallets = apiResponseToken.total
 						lastWalletToken = apiResponseToken.items[0].address
+						idTransactions = apiResponseToken.items[0].transactionId
+
+						// Date
+						fetch(`https://api.ergoplatform.com/api/v1/transactions/${idTransactions}`)
+							.then (res4 => res4.json())
+							.then (apiResponseToken4 => {
+								dateCreation = apiResponseToken4.timestamp
+
+								// Creation Date
+								fecha = new Date(dateCreation); 
+								dateCreation = fecha.getDate()+
+								"/"+(fecha.getMonth()+1)+
+								"/"+fecha.getFullYear()
+								
+								// Actual Date
+								dateCurrent = new Date().getTime()
+								ageToken = restaFechas(dateCurrent, apiResponseToken4.timestamp)
+							
+							})
+							.catch(error => console.error(error));
+
 						fetch(`https://api.ergoplatform.com/api/v1/boxes/byTokenId/${valorIdToken}?offset=${numWallets-1}`)
 							.then (res2 => res2.json())
 							.then (apiResponseToken2 => {
@@ -220,7 +241,7 @@
 		fetch(`https://api.ergoplatform.com/api/v0/assets/${valorIdToken}/issuingBox`)
 			.then (res => res.json())
 			.then (apiResponseToken => {
-				metadata = toUtf8String(apiResponseToken[0].additionalRegisters.R5).substr(2)
+				metadata = toUtf8String(apiResponseToken[0].additionalRegisters.R5).substr(3)
 				if(isJson(metadata)){
 					objetoTokenURL = {
 						description: ''
