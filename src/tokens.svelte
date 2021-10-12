@@ -145,7 +145,8 @@
 			fetch(`https://api.ergoplatform.com/api/v0/assets/${selected}/issuingBox`)
 				.then (res => res.json())
 				.then (apiResponseToken => {
-					metadata = toUtf8String(apiResponseToken[0].additionalRegisters.R5).substr(2)
+					// substr(3) para que cargue correctamente el metadata
+					metadata = toUtf8String(apiResponseToken[0].additionalRegisters.R5).substr(3)
 					if(isJson(metadata)){
 						objetoTokenURL = {
 							description: ''
