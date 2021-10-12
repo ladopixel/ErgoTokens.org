@@ -16,6 +16,12 @@
 	let lastWalletToken = ''
 	let actualWalletToken = ''
 
+	let idTransactions = ''
+	let dateCreation = 0
+	let dateCurrent = 0
+	let ageToken = 0
+	let fecha = 0
+
 	let valorHTMLAscii = ''
 	
 	let metadata = ''
@@ -73,15 +79,17 @@
 					}
 					return apiResponseToken || []
 				})
-		}
+			
+			// Ascii
+			fetch(`https://api.ergoplatform.com/api/v1/tokens/` + selected)
+				.then(response => response.json())
+				.then(consulta => {
+					valorHTMLAscii = consulta.description
+				})
+				.catch(error => console.error(error));
+			}
 
-		// Ascii
-		fetch(`https://api.ergoplatform.com/api/v1/tokens/` + selected)
-			.then(response => response.json())
-			.then(consulta => {
-				valorHTMLAscii = consulta.description
-			})
-			.catch(error => console.error(error));
+		
 	}
 
 	// WALLETS Cada vez que se modifique select 
@@ -90,18 +98,44 @@
 			fetch(`https://api.ergoplatform.com/api/v1/boxes/byTokenId/${selected}`)
 				.then (res => res.json())
 				.then (apiResponseToken => {
-					numWallets = apiResponseToken.total
-					lastWalletToken = apiResponseToken.items[0].address
-					fetch(`https://api.ergoplatform.com/api/v1/boxes/byTokenId/${selected}?offset=${numWallets-1}`)
-						.then (res2 => res2.json())
-						.then (apiResponseToken2 => {
+					numWallets = apiResponseToken.total - 1
+					idTransactions = apiResponseToken.items[0].transactionId
+					// lastWalletToken = apiResponseToken.items[0].address
+				fetch(`https://api.ergoplatform.com/api/v1/boxes/byTokenId/${selected}?offset=${numWallets}`)
+					.then (res2 => res2.json())
+					.then (apiResponseToken2 => {
+						if (apiResponseToken2.items[0].address != undefined){
 							actualWalletToken = apiResponseToken2.items[0].address
-						})
-						.catch(error => console.error(error));
-					
+						}
 						
+					})
+					.catch(error => console.error(error));
 				})
 				.catch(error => console.error(error));
+		}
+	}
+
+	// Date Age
+	$: {
+		if ((selected != '') && (selected !=0)) {
+		fetch(`https://api.ergoplatform.com/api/v1/transactions/${idTransactions}`)
+			.then (res3 => res3.json())
+			.then (apiResponseToken3 => {
+					dateCreation = apiResponseToken3.timestamp
+
+					// Creation Date
+					fecha = new Date(dateCreation); 
+					dateCreation = fecha.getDate()+
+					"/"+(fecha.getMonth()+1)+
+					"/"+fecha.getFullYear()
+					
+					// Actual Date
+					dateCurrent = new Date().getTime()
+
+					ageToken = restaFechas(dateCurrent, apiResponseToken3.timestamp)
+					
+			})
+			.catch(error => console.error(error));
 		}
 	}
 
@@ -111,7 +145,7 @@
 			fetch(`https://api.ergoplatform.com/api/v0/assets/${selected}/issuingBox`)
 				.then (res => res.json())
 				.then (apiResponseToken => {
-					metadata = toUtf8String(apiResponseToken[0].additionalRegisters.R5).substr(3)
+					metadata = toUtf8String(apiResponseToken[0].additionalRegisters.R5).substr(2)
 					if(isJson(metadata)){
 						objetoTokenURL = {
 							description: ''
@@ -121,6 +155,13 @@
 					}
 				})
 		}
+	}
+
+	function restaFechas(timestamp1, timestamp2) {
+		var difference = timestamp1 - timestamp2;
+		var daysDifference = Math.floor(difference/1000/60/60/24);
+
+		return daysDifference;
 	}
 
 	function toUtf8String(hex) {
@@ -178,7 +219,7 @@
 		fetch(`https://api.ergoplatform.com/api/v0/assets/${valorIdToken}/issuingBox`)
 			.then (res => res.json())
 			.then (apiResponseToken => {
-				metadata = toUtf8String(apiResponseToken[0].additionalRegisters.R5).substr(3)
+				metadata = toUtf8String(apiResponseToken[0].additionalRegisters.R5).substr(2)
 				if(isJson(metadata)){
 					objetoTokenURL = {
 						description: ''
@@ -324,7 +365,21 @@
 										</span>
 									</small>
 								</div>
-								
+
+								<!-- dateCreation -->
+								<div class="bg-white small mt-1 mb-1 px-2 py-1 rounded">
+									<small>
+										<i class="bi bi-calendar-event"></i>
+										<strong>Date of birth:   </strong>
+										<span class="text-secondary">
+											{dateCreation}
+										</span>
+										<strong>Age: </strong>
+											{ageToken}
+										<span> days</span>
+									</small>
+								</div>
+
 								<!-- SHA -->
 								{#if ImagenToken.additionalRegisters.R8}
 									<div class="bg-white small mt-1 mb-1 px-2 py-1 rounded">
@@ -441,7 +496,7 @@
 										</h2>
 										<div id="flush-collapseZero" class="accordion-collapse collapse" aria-labelledby="flush-headingZero" data-bs-parent="#accordionFlushExample">
 											<div class="accordion-body small text-secondary">
-												{toUtf8String(ImagenToken.additionalRegisters.R5).substr(3)}
+												{toUtf8String(ImagenToken.additionalRegisters.R5).substr(2)}
 											</div>
 										</div>
 									</div>
