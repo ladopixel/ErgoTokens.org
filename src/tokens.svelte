@@ -316,9 +316,16 @@
 			<div class="container">
 				<div class="card px-3 py-3" >
 					<div class="row no-gutters">
-						<div class="col-lg-3">
-							{#if ImagenToken.additionalRegisters.R7 == '0e020101'}
+						<div class="col-lg-3">							
+							{#if (ImagenToken.additionalRegisters.R7 == '0e020101')}
 								<img src={resolveIpfs(toUtf8String(ImagenToken.additionalRegisters.R9).substr(2))} class="card-img-top rounded" style="width: 16rem;" alt={ImagenToken.assets[0].name} />
+							{:else if ImagenToken.additionalRegisters.R7 == '0e0430313031'}
+								<center>
+									<div class="mark mt-3 py-3 {claseNoImage}">
+										Token minted with other standards. <br>
+										<h4>Look at its Descriptions.</h4>
+									</div>
+								</center>
 							{:else if ImagenToken.additionalRegisters.R7 == '0e020102'}
 								<span>
 									<center><audio src={resolveIpfs(toUtf8String(ImagenToken.additionalRegisters.R9).substr(2))} style="width: 12rem;" title={ImagenToken.assets[0].name} controls></audio> </center>
