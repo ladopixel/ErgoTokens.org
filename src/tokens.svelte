@@ -357,7 +357,11 @@
 						<div class="col-lg-9" >
 							<div class="card-body bg-light rounded px-3 py-2">
 								<!-- Name -->
-								<h5 class="card-title text-dark">{ImagenToken.assets[0].name}</h5>
+								<h5 class="card-title text-dark">
+									<!-- Twitter button -->
+									<a class="btn text-info" href="https://twitter.com/intent/tweet?text=Enjoy%20this%20token%20&url=https://ergotokens.org%2F%23%2f?token={ImagenToken.assets[0].tokenId}%20created%20in%20@ergoplatformorg%20♥%20$ERG&hashtags=ErgoNFT,Ergo2Top10" target="_blank"><i class="bi bi-twitter"></i></a>
+									{ImagenToken.assets[0].name}
+								</h5>
 
 								<!-- ID -->
 								<div class="bg-white small mt-1 mb-1 px-2 py-1 rounded">
