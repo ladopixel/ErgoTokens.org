@@ -1,7 +1,6 @@
 <script>
 	
 	import {location, querystring} from 'svelte-spa-router'
-	
 	//https://github.com/meloalright/svelte-clipboard
 	import Clipboard from "svelte-clipboard";
 
@@ -87,9 +86,7 @@
 					valorHTMLAscii = consulta.description
 				})
 				.catch(error => console.error(error));
-			}
-
-		
+			}		
 	}
 
 	// WALLETS Cada vez que se modifique select 
@@ -100,6 +97,7 @@
 				.then (apiResponseToken => {
 					numWallets = apiResponseToken.total - 1
 					idTransactions = apiResponseToken.items[0].transactionId
+					rescataFechas()
 					// lastWalletToken = apiResponseToken.items[0].address
 				fetch(`https://api.ergoplatform.com/api/v1/boxes/byTokenId/${selected}?offset=${numWallets}`)
 					.then (res2 => res2.json())
@@ -116,27 +114,22 @@
 	}
 
 	// Date Age
-	$: {
-		if ((selected != '') && (selected !=0)) {
+	function rescataFechas(){
 		fetch(`https://api.ergoplatform.com/api/v1/transactions/${idTransactions}`)
 			.then (res3 => res3.json())
 			.then (apiResponseToken3 => {
 					dateCreation = apiResponseToken3.timestamp
-
 					// Creation Date
 					fecha = new Date(dateCreation); 
 					dateCreation = fecha.getDate()+
 					"/"+(fecha.getMonth()+1)+
 					"/"+fecha.getFullYear()
-					
 					// Actual Date
 					dateCurrent = new Date().getTime()
-
 					ageToken = restaFechas(dateCurrent, apiResponseToken3.timestamp)
 					
 			})
 			.catch(error => console.error(error));
-		}
 	}
 
 	// Cargo metadatos cada vez que se carga algo del select
@@ -161,7 +154,6 @@
 	function restaFechas(timestamp1, timestamp2) {
 		var difference = timestamp1 - timestamp2;
 		var daysDifference = Math.floor(difference/1000/60/60/24);
-
 		return daysDifference;
 	}
 
@@ -218,7 +210,7 @@
 								// Actual Date
 								dateCurrent = new Date().getTime()
 								ageToken = restaFechas(dateCurrent, apiResponseToken4.timestamp)
-							
+								
 							})
 							.catch(error => console.error(error));
 
