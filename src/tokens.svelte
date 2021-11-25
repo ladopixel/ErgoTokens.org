@@ -12,9 +12,11 @@
 	let valorIdToken = ''
 
 	let numWallets = 0
+	let transitionParaWallet = ''
 	let lastWalletToken = ''
 	let actualWalletToken = ''
 
+	let boxId = ''
 	let idTransactions = ''
 	let dateCreation = 0
 	let dateCurrent = 0
@@ -43,19 +45,6 @@
 	}
 
 
-	// Lastoken
-	// fetch(`https://api.ergoplatform.com/api/v1/tokens?limit=1`)
-	// 	.then (res => res.json())
-	// 	.then (apiResponse => {
-	// 		objetoLastToken = {
-	// 			id: apiResponse.items[0].id,
-	// 		}
-	// })
-	// function lastToken(){
-	// 	window.location = `https://ergotokens.org/#/?token=${objetoLastToken.id}`
-	// }
-
-
 	// Cada vez que se modifique el valor de value
 	$: if (value.length > 4){
 		claseSelect = 'mb-2 mt-2 form-select form-select-sm '
@@ -66,6 +55,7 @@
 		})
 	}
 
+	
 	// Cada vez que se modifique el valor selected
 	$: {
 		// General 
@@ -77,8 +67,21 @@
 							description: 'no metadata'
 					}
 					return apiResponseToken || []
+			})
+			// boxId para fecha y cartera
+			fetch(`https://api.ergoplatform.com/api/v1/tokens/search?query=` + selected)
+				.then(response => response.json())
+				.then(consulta => {
+					boxId = consulta.items[0].boxId
 				})
-			
+				.catch(error => console.error(error));
+			// Con el ID de la box averiguo el transactionsId
+			fetch(`https://api.ergoplatform.com/api/v1/boxes/` + boxId)
+				.then(response => response.json())
+				.then(consulta => {
+					idTransactions = consulta.transactionId
+				})
+				.catch(error => console.error(error));
 			// Ascii
 			fetch(`https://api.ergoplatform.com/api/v1/tokens/` + selected)
 				.then(response => response.json())
@@ -86,7 +89,7 @@
 					valorHTMLAscii = consulta.description
 				})
 				.catch(error => console.error(error));
-			}		
+		}		
 	}
 
 	// WALLETS Cada vez que se modifique select 
@@ -96,16 +99,14 @@
 				.then (res => res.json())
 				.then (apiResponseToken => {
 					numWallets = apiResponseToken.total - 1
-					idTransactions = apiResponseToken.items[0].transactionId
+					// Rescato las fechas
 					rescataFechas()
-					// lastWalletToken = apiResponseToken.items[0].address
 				fetch(`https://api.ergoplatform.com/api/v1/boxes/byTokenId/${selected}?offset=${numWallets}`)
 					.then (res2 => res2.json())
 					.then (apiResponseToken2 => {
 						if (apiResponseToken2.items[0].address != undefined){
 							actualWalletToken = apiResponseToken2.items[0].address
 						}
-						
 					})
 					.catch(error => console.error(error));
 				})
@@ -113,24 +114,7 @@
 		}
 	}
 
-	// Date Age
-	function rescataFechas(){
-		fetch(`https://api.ergoplatform.com/api/v1/transactions/${idTransactions}`)
-			.then (res3 => res3.json())
-			.then (apiResponseToken3 => {
-					dateCreation = apiResponseToken3.timestamp
-					// Creation Date
-					fecha = new Date(dateCreation); 
-					dateCreation = fecha.getDate()+
-					"/"+(fecha.getMonth()+1)+
-					"/"+fecha.getFullYear()
-					// Actual Date
-					dateCurrent = new Date().getTime()
-					ageToken = restaFechas(dateCurrent, apiResponseToken3.timestamp)
-					
-			})
-			.catch(error => console.error(error));
-	}
+	
 
 	// Cargo metadatos cada vez que se carga algo del select
 	$: {
@@ -150,6 +134,128 @@
 				})
 		}
 	}
+
+	
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////// Rescatar valor y mostrar token desde URL
+//////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	valorIdToken = JSON.stringify($querystring)
+	if (valorIdToken.substring(1, 6) == 'token'){
+		valorIdToken = valorIdToken.substring(7, valorIdToken.length - 1)
+		informacionCompletaTokens = fetch(`https://api.ergoplatform.com/api/v0/assets/${valorIdToken}/issuingBox`)
+			.then (res => res.json())
+			.then (apiResponseToken => {
+				objetoTokenURL = {
+					description: 'no metadata'
+				}
+				return apiResponseToken || []
+		})
+		// boxId para fecha y cartera
+		fetch('https://api.ergoplatform.com/api/v1/tokens/search?query=' + valorIdToken)
+			.then(response => response.json())
+			.then(consulta => {
+				boxId = consulta.items[0].boxId;
+				sacarTransaccion(boxId)
+			})
+			.catch(error => console.error(error));
+			
+			function sacarTransaccion(box){
+				// Con el ID de la box averiguo el transactionsId
+				fetch('https://api.ergoplatform.com/api/v1/boxes/' + boxId)
+					.then(response => response.json())
+					.then(consulta => {
+						idTransactions = consulta.transactionId;
+						rescataFechasURL(idTransactions)
+					})
+					.catch(error => console.error(error));
+			}
+			
+			// Ascii
+		fetch('https://api.ergoplatform.com/api/v1/tokens/' + valorIdToken)
+			.then(response => response.json())
+			.then(consulta => {
+				valorHTMLAscii = consulta.description
+			})
+			.catch(error => console.error(error));
+		
+			// WALLETS
+		fetch(`https://api.ergoplatform.com/api/v1/boxes/byTokenId/${valorIdToken}`)
+			.then (res => res.json())
+			.then (apiResponseToken => {
+				numWallets = apiResponseToken.total - 1
+				// Rescato las fechas
+				rescataFechas()
+			fetch(`https://api.ergoplatform.com/api/v1/boxes/byTokenId/${valorIdToken}?offset=${numWallets}`)
+				.then (res2 => res2.json())
+				.then (apiResponseToken2 => {
+					if (apiResponseToken2.items[0].address != undefined){
+						actualWalletToken = apiResponseToken2.items[0].address
+					}
+				})
+				.catch(error => console.error(error));
+			})
+			.catch(error => console.error(error));
+	}
+
+	function rescataFechasURL(id){
+		fetch(`https://api.ergoplatform.com/api/v1/transactions/${id}`)
+			.then (res3 => res3.json())
+			.then (apiResponseToken3 => {
+					// Rescato wallet de creación
+					transitionParaWallet = apiResponseToken3.inputs[0].outputTransactionId
+					fetch(`https://api.ergoplatform.com/api/v1/transactions/${transitionParaWallet}`)
+						.then (res4 => res4.json())
+						.then (apiResponseToken4 => {
+							dateCreation = apiResponseToken4.timestamp
+							// Creation Date
+							fecha = new Date(dateCreation); 
+							dateCreation = fecha.getDate()+
+							"/"+(fecha.getMonth()+1)+
+							"/"+fecha.getFullYear()
+							// Actual Date
+							dateCurrent = new Date().getTime()
+							ageToken = restaFechas(dateCurrent, apiResponseToken4.timestamp)
+							
+							// Billetera de acuñacion
+							lastWalletToken = apiResponseToken4.inputs[0].address
+					})
+					.catch(error => console.error(error));
+					
+			})
+			.catch(error => console.error(error));
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+	// Rescatar valor Metadata y mostrar token desde URL
+	valorIdToken = JSON.stringify($querystring)
+	if (valorIdToken.substring(1, 6) == 'token'){
+		valorIdToken = valorIdToken.substring(7, valorIdToken.length - 1)
+		fetch(`https://api.ergoplatform.com/api/v0/assets/${valorIdToken}/issuingBox`)
+			.then (res => res.json())
+			.then (apiResponseToken => {
+				metadata = toUtf8String(apiResponseToken[0].additionalRegisters.R5).substr(3)
+				if(isJson(metadata)){
+					objetoTokenURL = {
+						description: ''
+					}
+					objetoMetadata = JSON.parse(metadata)
+					visualizoMetadata(objetoMetadata)
+				}
+			})
+	}	
 
 	function restaFechas(timestamp1, timestamp2) {
 		var difference = timestamp1 - timestamp2;
@@ -172,76 +278,6 @@
 		const ipfsPrefix = 'ipfs://'
 		if (!url.startsWith(ipfsPrefix)) return url
 		else return url.replace(ipfsPrefix, 'https://cloudflare-ipfs.com/ipfs/')
-	}
-
-	// Rescatar valor y mostrar token desde URL
-	valorIdToken = JSON.stringify($querystring)
-	if (valorIdToken.substring(1, 6) == 'token'){
-		valorIdToken = valorIdToken.substring(7, valorIdToken.length - 1)
-		informacionCompletaTokens = fetch(`https://api.ergoplatform.com/api/v0/assets/${valorIdToken}/issuingBox`)
-			.then (res => res.json())
-			.then (apiResponseToken => {
-				fetch(`https://api.ergoplatform.com/api/v1/tokens/` + valorIdToken)
-					.then(response => response.json())
-					.then(consulta => {
-						valorHTMLAscii = consulta.description
-					})
-				.catch(error => console.error(error))
-				// Wallets
-				fetch(`https://api.ergoplatform.com/api/v1/boxes/byTokenId/${valorIdToken}`)
-					.then (res => res.json())
-					.then (apiResponseToken => {
-						numWallets = apiResponseToken.total
-						lastWalletToken = apiResponseToken.items[0].address
-						idTransactions = apiResponseToken.items[0].transactionId
-
-						// Date
-						fetch(`https://api.ergoplatform.com/api/v1/transactions/${idTransactions}`)
-							.then (res4 => res4.json())
-							.then (apiResponseToken4 => {
-								dateCreation = apiResponseToken4.timestamp
-
-								// Creation Date
-								fecha = new Date(dateCreation); 
-								dateCreation = fecha.getDate()+
-								"/"+(fecha.getMonth()+1)+
-								"/"+fecha.getFullYear()
-								
-								// Actual Date
-								dateCurrent = new Date().getTime()
-								ageToken = restaFechas(dateCurrent, apiResponseToken4.timestamp)
-								
-							})
-							.catch(error => console.error(error));
-
-						fetch(`https://api.ergoplatform.com/api/v1/boxes/byTokenId/${valorIdToken}?offset=${numWallets-1}`)
-							.then (res2 => res2.json())
-							.then (apiResponseToken2 => {
-								actualWalletToken = apiResponseToken2.items[0].address
-							})
-							.catch(error => console.error(error));
-					})
-					.catch(error => console.error(error));
-				return apiResponseToken || []
-			})
-	}
-
-	// Rescatar valor Metadata y mostrar token desde URL
-	valorIdToken = JSON.stringify($querystring)
-	if (valorIdToken.substring(1, 6) == 'token'){
-		valorIdToken = valorIdToken.substring(7, valorIdToken.length - 1)
-		fetch(`https://api.ergoplatform.com/api/v0/assets/${valorIdToken}/issuingBox`)
-			.then (res => res.json())
-			.then (apiResponseToken => {
-				metadata = toUtf8String(apiResponseToken[0].additionalRegisters.R5).substr(3)
-				if(isJson(metadata)){
-					objetoTokenURL = {
-						description: ''
-					}
-					objetoMetadata = JSON.parse(metadata)
-					visualizoMetadata(objetoMetadata)
-				}
-			})
 	}
 
 	function isJson(str) {
@@ -274,6 +310,37 @@
 	function letraMayuscula(texto) {
 		return texto.charAt(0).toUpperCase() + texto.slice(1);
 	}
+
+	// Date Age
+	function rescataFechas(){
+		fetch(`https://api.ergoplatform.com/api/v1/transactions/${idTransactions}`)
+			.then (res3 => res3.json())
+			.then (apiResponseToken3 => {
+					// Rescato wallet de creación
+					transitionParaWallet = apiResponseToken3.inputs[0].outputTransactionId
+					fetch(`https://api.ergoplatform.com/api/v1/transactions/${transitionParaWallet}`)
+						.then (res4 => res4.json())
+						.then (apiResponseToken4 => {
+							dateCreation = apiResponseToken4.timestamp
+							// Creation Date
+							fecha = new Date(dateCreation); 
+							dateCreation = fecha.getDate()+
+							"/"+(fecha.getMonth()+1)+
+							"/"+fecha.getFullYear()
+							// Actual Date
+							dateCurrent = new Date().getTime()
+							ageToken = restaFechas(dateCurrent, apiResponseToken4.timestamp)
+							
+							// Billetera de acuñacion
+							lastWalletToken = apiResponseToken4.inputs[0].address
+					})
+					.catch(error => console.error(error));
+					
+			})
+			.catch(error => console.error(error));
+	}
+
+
 </script>
 
 <svelte:head>
@@ -430,7 +497,7 @@
 								</div>
 									
 								<!-- Minting Address -->
-								<!-- <div class="bg-white small mt-1 mb-1 px-2 py-1 rounded">
+								<div class="bg-white small mt-1 mb-1 px-2 py-1 rounded">
 									<span class="text-break">
 										<small>
 											<i class="bi bi-wallet2"></i>
@@ -440,7 +507,7 @@
 											</span>
 										</small>
 									</span>
-								</div> -->
+								</div>
 
 								<!-- Address -->
 								<div class="bg-white small mt-1 mb-1 px-2 py-1 rounded">
@@ -556,8 +623,8 @@
 										</button>
 										</h2>
 										<div id="flush-collapseFour" class="accordion-collapse collapse" aria-labelledby="flush-headingFour" data-bs-parent="#accordionFlushExample">
-										<div class="accordion-body small text-secondary">
-											<pre>
+										<div class="accordion-body small text-dark">
+											<pre class="maritsaart">
 												<span>{valorHTMLAscii}</span>
 											</pre>
 										</div>
