@@ -426,6 +426,7 @@
 								<!-- Name -->
 								<h5 class="card-title text-dark">
 									<!-- Twitter button -->
+									<a class="btn text-dark" href="https://www.google.com/searchbyimage?site=search&sa=X&image_url={resolveIpfs(toUtf8String(ImagenToken.additionalRegisters.R9).substr(2))}" target="_blank"><i class="bi bi-binoculars-fill"></i></a>
 									<a class="btn text-info" href="https://twitter.com/intent/tweet?text=Enjoy%20this%20token%20&url=https://ergotokens.org%2F%23%2f?token={ImagenToken.assets[0].tokenId}%20created%20in%20@ergoplatformorg%20♥%20$ERG&hashtags=ErgoNFT,Ergo2Top10" target="_blank"><i class="bi bi-twitter"></i></a>
 									{ImagenToken.assets[0].name}
 								</h5>
