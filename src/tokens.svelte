@@ -1,5 +1,4 @@
 <script>
-	
 	import {location, querystring} from 'svelte-spa-router'
 	//https://github.com/meloalright/svelte-clipboard
 	import Clipboard from "svelte-clipboard";
@@ -18,7 +17,11 @@
 
 	let boxId = ''
 	let idTransactions = ''
+	let Royalti = 0
+	let direccionContrato = ''
+	let outPutContrato = ''
 	let direccionMinted = ''
+	let idTxParaDireccionMinted = 0
 	let dateCreation = 0
 	let dateCurrent = 0
 	let ageToken = 0
@@ -59,7 +62,10 @@
 	
 	// Cada vez que se modifique el valor selected
 	$: {
-		// General 
+		// General
+		// direccionContrato = ''
+		// direccionMinted = ''
+		// idTxParaDireccionMinted = ''
 		if ((selected != '') && (selected !=0)) {
 			informacionCompletaTokens = fetch(`https://api.ergoplatform.com/api/v0/assets/${selected}/issuingBox`)
 				.then (res => res.json())
@@ -76,13 +82,16 @@
 					boxId = consulta.items[0].boxId
 				})
 				.catch(error => console.error(error));
-			// Con el ID de la box averiguo el transactionsId
-			fetch(`https://api.ergoplatform.com/api/v1/boxes/` + boxId)
-				.then(response => response.json())
-				.then(consulta => {
-					idTransactions = consulta.transactionId
-				})
-				.catch(error => console.error(error));
+			
+			if (boxId) {
+				// Con el ID de la box averiguo el transactionsId
+				fetch(`https://api.ergoplatform.com/api/v1/boxes/` + boxId)
+					.then(response => response.json())
+					.then(consulta => {
+						idTransactions = consulta.transactionId
+					})
+					.catch(error => console.error(error));
+			}
 			// Ascii
 			fetch(`https://api.ergoplatform.com/api/v1/tokens/` + selected)
 				.then(response => response.json())
@@ -90,6 +99,43 @@
 					valorHTMLAscii = consulta.description
 				})
 				.catch(error => console.error(error));
+
+
+			// Royalti y el idTxParaDireccionMinted
+			fetch(`https://api.ergoplatform.com/api/v0/transactions/boxes/` + selected)
+				.then(response => response.json())
+				.then(consulta => {
+					Royalti = 0
+					if (consulta.additionalRegisters.R4){
+						Royalti = consulta.additionalRegisters.R4
+					}
+					idTxParaDireccionMinted = consulta.txId
+				})
+				.catch(error => console.error(error));
+
+			if(idTxParaDireccionMinted){
+
+				//Dirección Contrato si es que hay
+				fetch(`https://api.ergoplatform.com/api/v1/transactions/` + idTxParaDireccionMinted)
+					.then(response => response.json())
+					.then(consulta => {
+							direccionContrato = consulta.inputs[0].address
+							outPutContrato = consulta.inputs[0].outputTransactionId
+					})
+					.catch(error => console.error(error));
+			}
+
+			//Dirección Minted
+			if(outPutContrato){
+				fetch(`https://api.ergoplatform.com/api/v1/transactions/` + outPutContrato)
+					.then(response => response.json())
+					.then(consulta => {
+							direccionMinted = consulta.inputs[0].address
+					})
+					.catch(error => console.error(error));
+			}
+
+			
 		}		
 	}
 
@@ -100,7 +146,6 @@
 				.then (res => res.json())
 				.then (apiResponseToken => {
 					numWallets = apiResponseToken.total - 1
-					direccionMinted = apiResponseToken.items[0].address
 					// Rescato las fechas
 					rescataFechas()
 				fetch(`https://api.ergoplatform.com/api/v1/boxes/byTokenId/${selected}?offset=${numWallets}`)
@@ -182,13 +227,43 @@
 				valorHTMLAscii = consulta.description
 			})
 			.catch(error => console.error(error));
+
+		
+		// Royalti y el idTxParaDireccionMinted
+		fetch('https://api.ergoplatform.com/api/v0/transactions/boxes/' + valorIdToken)
+			.then(response => response.json())
+			.then(consulta => {
+				Royalti = 0
+				if (consulta.additionalRegisters.R4){
+					Royalti = consulta.additionalRegisters.R4
+				}
+				idTxParaDireccionMinted = consulta.txId
+				//Dirección Contrato si es que hay
+				fetch('https://api.ergoplatform.com/api/v1/transactions/' + idTxParaDireccionMinted)
+					.then(response => response.json())
+					.then(consulta => {
+							direccionContrato = consulta.inputs[0].address
+							outPutContrato = consulta.inputs[0].outputTransactionId
+							//Dirección Minted
+							fetch('https://api.ergoplatform.com/api/v1/transactions/' + outPutContrato)
+								.then(response => response.json())
+								.then(consulta => {
+									direccionMinted = consulta.inputs[0].address
+								})
+								.catch(error => console.error(error));
+							
+					})
+					.catch(error => console.error(error));
+		
+			})
+			.catch(error => console.error(error));
+
 		
 			// WALLETS
 		fetch(`https://api.ergoplatform.com/api/v1/boxes/byTokenId/${valorIdToken}`)
 			.then (res => res.json())
 			.then (apiResponseToken => {
 				numWallets = apiResponseToken.total - 1
-				direccionMinted = apiResponseToken.items[0].address
 				// Rescato las fechas
 				rescataFechas()
 			fetch(`https://api.ergoplatform.com/api/v1/boxes/byTokenId/${valorIdToken}?offset=${numWallets}`)
@@ -316,34 +391,35 @@
 
 	// Date Age
 	function rescataFechas(){
-		fetch(`https://api.ergoplatform.com/api/v1/transactions/${idTransactions}`)
-			.then (res3 => res3.json())
-			.then (apiResponseToken3 => {
-					// Rescato wallet de creación
-					transitionParaWallet = apiResponseToken3.inputs[0].outputTransactionId
-					fetch(`https://api.ergoplatform.com/api/v1/transactions/${transitionParaWallet}`)
-						.then (res4 => res4.json())
-						.then (apiResponseToken4 => {
-							dateCreation = apiResponseToken4.timestamp
-							// Creation Date
-							fecha = new Date(dateCreation); 
-							dateCreation = fecha.getDate()+
-							"/"+(fecha.getMonth()+1)+
-							"/"+fecha.getFullYear()
-							// Actual Date
-							dateCurrent = new Date().getTime()
-							ageToken = restaFechas(dateCurrent, apiResponseToken4.timestamp)
-							
-							//// Billetera de acuñacion
-							////lastWalletToken = apiResponseToken4.inputs[0].address
-					})
-					.catch(error => console.error(error));
-					
-			})
-			.catch(error => console.error(error));
+		if(idTransactions){
+
+			fetch(`https://api.ergoplatform.com/api/v1/transactions/${idTransactions}`)
+				.then (res3 => res3.json())
+				.then (apiResponseToken3 => {
+						// Rescato wallet de creación
+						transitionParaWallet = apiResponseToken3.inputs[0].outputTransactionId
+						fetch(`https://api.ergoplatform.com/api/v1/transactions/${transitionParaWallet}`)
+							.then (res4 => res4.json())
+							.then (apiResponseToken4 => {
+								dateCreation = apiResponseToken4.timestamp
+								// Creation Date
+								fecha = new Date(dateCreation); 
+								dateCreation = fecha.getDate()+
+								"/"+(fecha.getMonth()+1)+
+								"/"+fecha.getFullYear()
+								// Actual Date
+								dateCurrent = new Date().getTime()
+								ageToken = restaFechas(dateCurrent, apiResponseToken4.timestamp)
+								
+								//// Billetera de acuñacion
+								////lastWalletToken = apiResponseToken4.inputs[0].address
+						})
+						.catch(error => console.error(error));
+						
+				})
+				.catch(error => console.error(error));
+		}
 	}
-
-
 </script>
 
 <svelte:head>
@@ -499,15 +575,30 @@
 										</span>
 									</small>
 								</div>
+
+								<!-- Royalti -->
+								<!-- <div class="bg-white small mt-1 mb-1 px-2 py-1 rounded">
+									<small>
+										<i class="bi bi-wallet-fill"></i>
+										<strong>Royalty </strong>
+										<span class="text-secondary">
+											{Royalti} %
+										</span>
+									</small>
+								</div> -->
 									
-								<!-- Minting Address -->
+								<!-- Minting and Contracts Address -->
 								<div class="bg-white small mt-1 mb-1 px-2 py-1 rounded">
 									<span class="text-break">
 										<small>
 											<i class="bi bi-wallet2"></i>
-											<strong>Minting address </strong>
+											<strong>Minted address </strong>
 											<span class="text-secondary">
-												{direccionMinted}
+												{#if (direccionContrato.length > direccionMinted.length)}
+													{direccionMinted}
+												{:else}
+													{direccionContrato}
+												{/if}
 											</span>
 										</small>
 									</span>
