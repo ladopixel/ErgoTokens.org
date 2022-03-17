@@ -18,6 +18,7 @@
 
 	let boxId = ''
 	let idTransactions = ''
+	let direccionMinted = ''
 	let dateCreation = 0
 	let dateCurrent = 0
 	let ageToken = 0
@@ -99,6 +100,7 @@
 				.then (res => res.json())
 				.then (apiResponseToken => {
 					numWallets = apiResponseToken.total - 1
+					direccionMinted = apiResponseToken.items[0].address
 					// Rescato las fechas
 					rescataFechas()
 				fetch(`https://api.ergoplatform.com/api/v1/boxes/byTokenId/${selected}?offset=${numWallets}`)
@@ -186,6 +188,7 @@
 			.then (res => res.json())
 			.then (apiResponseToken => {
 				numWallets = apiResponseToken.total - 1
+				direccionMinted = apiResponseToken.items[0].address
 				// Rescato las fechas
 				rescataFechas()
 			fetch(`https://api.ergoplatform.com/api/v1/boxes/byTokenId/${valorIdToken}?offset=${numWallets}`)
@@ -331,8 +334,8 @@
 							dateCurrent = new Date().getTime()
 							ageToken = restaFechas(dateCurrent, apiResponseToken4.timestamp)
 							
-							// Billetera de acuñacion
-							lastWalletToken = apiResponseToken4.inputs[0].address
+							//// Billetera de acuñacion
+							////lastWalletToken = apiResponseToken4.inputs[0].address
 					})
 					.catch(error => console.error(error));
 					
@@ -504,7 +507,7 @@
 											<i class="bi bi-wallet2"></i>
 											<strong>Minting address </strong>
 											<span class="text-secondary">
-												{lastWalletToken}
+												{direccionMinted}
 											</span>
 										</small>
 									</span>
